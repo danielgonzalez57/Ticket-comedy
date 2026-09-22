@@ -1,26 +1,289 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-display);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  --color-accent-ink: var(--accent-ink);
+  --color-highlight: var(--highlight);
+
+  --color-seat-available: var(--seat-available);
+  --color-seat-hold: var(--seat-hold);
+  --color-seat-sold: var(--seat-sold);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
 }
 
-@media (prefers-color-scheme: dark) {
+/* Ticket Comedy — LIGHT theme (default :root). Warm cream base keeps the
+   brand from feeling clinical; azul is the dominant fill/CTA/text accent,
+   naranja is used sparingly as a warm spark. */
+:root {
+  --background: #f7f7f1;
+  --foreground: #121210;
+
+  --card: #ffffff;
+  --card-foreground: #121210;
+
+  --popover: #ffffff;
+  --popover-foreground: #121210;
+
+  --primary: #1840a0;
+  --primary-foreground: #ffffff;
+
+  --secondary: #eceae2;
+  --secondary-foreground: #1a1a18;
+
+  --muted: #efeee7;
+  --muted-foreground: #6b6a61;
+
+  --accent: #e9e7df;
+  --accent-foreground: #1a1a18;
+
+  --destructive: #d92d3a;
+  --destructive-foreground: #ffffff;
+
+  --success: #15924f;
+  --success-foreground: #ffffff;
+
+  --border: rgba(0, 0, 0, 0.1);
+  --input: rgba(0, 0, 0, 0.14);
+  --ring: rgba(24, 64, 160, 0.5);
+
+  /* Readable "accent text" colour — same azul as primary, it's already
+     high-contrast on the light background. */
+  --accent-ink: #1840a0;
+  --tc-glow: transparent;
+
+  /* The warm spark used to punctuate a word/glyph inside azul copy —
+     never the dominant colour, always a single accent within it. */
+  --highlight: #f04000;
+  --tc-glow-warm: transparent;
+  --tc-glow-neutral: transparent;
+
+  --radius: 0.625rem;
+
+  --seat-available: #ddddd4;
+  --seat-hold: #f7d9c2;
+  --seat-sold: #e9e8e1;
+}
+
+/* DARK theme — the signature neon-on-black look, now lit by azul, with
+   naranja held back as a warm spark (glow + hold status only). */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+
+  --card: #141414;
+  --card-foreground: #f5f5f5;
+
+  --popover: #141414;
+  --popover-foreground: #f5f5f5;
+
+  --primary: #1840a0;
+  --primary-foreground: #ffffff;
+
+  --secondary: #1c1c1c;
+  --secondary-foreground: #f5f5f5;
+
+  --muted: #161616;
+  --muted-foreground: #888888;
+
+  --accent: #1e1e1e;
+  --accent-foreground: #f5f5f5;
+
+  --destructive: #ff4444;
+  --destructive-foreground: #0a0a0a;
+
+  --success: #44ff88;
+  --success-foreground: #0a0a0a;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: rgba(59, 130, 246, 0.45);
+
+  /* A brightened, more saturated azul — the exact brand navy is too dark
+     and flat to read as a glow against near-black, so this electric
+     tint is lifted for legibility and actually pops. */
+  --accent-ink: #3b82f6;
+  --tc-glow: rgba(59, 130, 246, 0.45);
+
+  --highlight: #f04000;
+  --tc-glow-warm: rgba(240, 64, 0, 0.4);
+  --tc-glow-neutral: rgba(245, 245, 245, 0.25);
+
+  --seat-available: #2a2a2a;
+  --seat-hold: #4a2410;
+  --seat-sold: #1a1a1a;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  /* Headings get the display face + tight tracking by default. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  /* Pointer cursor on every interactive element (Tailwind v4 dropped the
+     default button pointer). */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  label[for],
+  select:not(:disabled),
+  summary,
+  [data-slot="select-trigger"]:not([disabled]) {
+    cursor: pointer;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* In light mode this is a no-op (accent-ink already equals primary) but
+   kept so any future divergence between the two stays easy to read.
+   (Unlayered rule so it overrides the utility.) */
+html:not(.dark) .text-primary {
+  color: var(--accent-ink);
+}
+
+/* ── Atmosphere ─────────────────────────────────────────────────
+   A fixed azul spotlight + a small naranja spark + fine film grain
+   give the flat black depth. */
+.tc-atmosphere {
+  background:
+    radial-gradient(
+      70% 55% at 50% -8%,
+      rgba(59, 130, 246, 0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      45% 45% at 100% 0%,
+      rgba(59, 130, 246, 0.06),
+      transparent 55%
+    ),
+    radial-gradient(
+      50% 40% at 0% 100%,
+      rgba(240, 64, 0, 0.06),
+      transparent 60%
+    );
+}
+
+.tc-grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Azul glow text/box helpers (glow disabled in light via --tc-glow) */
+.tc-text-glow {
+  text-shadow: 0 0 24px var(--tc-glow);
+}
+
+/* Naranja counterpart — used on the single accent word/glyph placed
+   inside azul copy (glow disabled in light via --tc-glow-warm). */
+.tc-text-glow-warm {
+  text-shadow: 0 0 24px var(--tc-glow-warm);
+}
+
+/* Neutral white glow — used on plain foreground-coloured display text
+   (glow disabled in light via --tc-glow-neutral). */
+.tc-text-glow-neutral {
+  text-shadow: 0 0 20px var(--tc-glow-neutral);
+}
+
+/* ── Motion ─────────────────────────────────────────────────── */
+@keyframes tc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tc-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.tc-rise {
+  animation: tc-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tc-marquee {
+  animation: tc-marquee 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tc-rise,
+  .tc-marquee {
+    animation: none !important;
+  }
+}
+
+/* Ticket-stub perforation (used on show cards) */
+.tc-perf {
+  background-image: radial-gradient(
+    circle at center,
+    var(--background) 0,
+    var(--background) 3px,
+    transparent 3.5px
+  );
+  background-size: 14px 14px;
+  background-position: center;
+  background-repeat: repeat-y;
 }
