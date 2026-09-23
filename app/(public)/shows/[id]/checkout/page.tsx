@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Info } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { CheckoutForm } from "@/components/checkout-form";
+import { PaymentInfoFields } from "@/components/payment-info-fields";
 import { effectiveStatus } from "@/lib/seats";
 import { formatMoney, formatBs } from "@/lib/format";
 import { paymentInfo, MAX_SEATS_PER_ORDER } from "@/lib/constants";
@@ -110,7 +111,7 @@ export default async function CheckoutPage({
           <Info className="mt-0.5 size-4 shrink-0 text-primary" />
           <div className="space-y-1 text-sm">
             <p className="font-medium">Datos para tu pago</p>
-            <p className="text-muted-foreground">{paymentInfo()}</p>
+            <PaymentInfoFields raw={paymentInfo()} />
             <p className="text-xs text-muted-foreground/80">
               Transfiere exactamente {formatBs(totalBs)}{" "}
               (tasa {typedShow.tasa} Bs/USD).

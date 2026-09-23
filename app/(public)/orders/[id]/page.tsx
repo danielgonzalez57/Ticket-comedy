@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CheckCircle2, Clock, XCircle, MessageCircle } from "lucide-react";
 import { getOrderDetail } from "@/lib/queries";
 import { ReportPaymentForm } from "@/components/report-payment-form";
+import { PaymentInfoFields } from "@/components/payment-info-fields";
 import { formatDualMoney, formatDate } from "@/lib/format";
 import {
   paymentInfo,
@@ -82,7 +83,7 @@ export default async function OrderPage({
         <>
           <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm">
             <p className="font-medium">Completa tu pago</p>
-            <p className="mt-1 text-muted-foreground">{paymentInfo()}</p>
+            <PaymentInfoFields raw={paymentInfo()} />
             {order.payment_ref && (
               <p className="mt-2 text-xs text-muted-foreground">
                 Referencia registrada:{" "}
