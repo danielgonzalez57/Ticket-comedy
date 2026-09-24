@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CheckoutForm } from "@/components/checkout-form";
 import { effectiveStatus } from "@/lib/seats";
-import { formatMoney, formatBs, formatTasa } from "@/lib/format";
+import { formatMoney, formatBs, formatTasa, pasteableAmount } from "@/lib/format";
 import {
   binanceInfo,
   paymentInfo,
@@ -113,6 +113,8 @@ export default async function CheckoutPage({
         quantity={qty}
         totalUsdLabel={formatMoney(total)}
         totalBsLabel={formatBs(totalBs)}
+        totalUsdCopy={pasteableAmount(total, ".")}
+        totalBsCopy={pasteableAmount(totalBs, ",")}
         tasaLabel={formatTasa(typedShow.tasa)}
         pagoMovilInfo={paymentInfo()}
         binanceInfo={binanceInfo()}

@@ -50,8 +50,26 @@ function CopyButton({ value, className }: { value: string; className?: string })
   );
 }
 
-export function PaymentInfoFields({ raw }: { raw: string }) {
-  const fields = parseFields(raw);
+export type PaymentAmount = {
+  // Shown to the customer, e.g. "Bs. 8.406,70".
+  display: string;
+  // What the copy buttons put on the clipboard, e.g. "8406,70".
+  copy: string;
+};
+
+export function PaymentInfoFields({
+  raw,
+  amount,
+}: {
+  raw: string;
+  // Appended as the last row ("Monto") and included in "Copiar todo".
+  amount?: PaymentAmount;
+}) {
+  const parsed = parseFields(raw);
+  const fields =
+    parsed && amount
+      ? [...parsed, { label: "Monto", value: amount.display, copy: amount.copy }]
+      : parsed;
 
   if (!fields) {
     return (
@@ -67,18 +85,30 @@ export function PaymentInfoFields({ raw }: { raw: string }) {
       {fields.map((field) => (
         <div key={field.label} className="flex items-center justify-between gap-2">
           <span>
-            {field.label}: <span className="text-foreground">{field.value}</span>
+            {field.label}:{" "}
+            <span
+              className={cn(
+                "text-foreground",
+                field.label === "Monto" && amount && "font-semibold",
+              )}
+            >
+              {field.value}
+            </span>
           </span>
-          <CopyButton value={field.value} />
+          <CopyButton value={copyValue(field)} />
         </div>
       ))}
       {fields.length > 1 && (
         <CopyAllButton
-          value={fields.map((f) => `${f.label}: ${f.value}`).join("\n")}
+          value={fields.map((f) => `${f.label}: ${copyValue(f)}`).join("\n")}
         />
       )}
     </div>
   );
+}
+
+function copyValue(field: { value: string; copy?: string }) {
+  return field.copy ?? field.value;
 }
 
 // Copies every field at once, one "Label: value" per line — handy for

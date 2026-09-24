@@ -29,6 +29,9 @@ type Props = {
   // (see the note in lib/format.ts), never be computed here.
   totalUsdLabel: string;
   totalBsLabel: string;
+  // Same amounts as plain numbers for pasting into a payment app.
+  totalUsdCopy: string;
+  totalBsCopy: string;
   tasaLabel: string;
   pagoMovilInfo: string;
   binanceInfo: string;
@@ -130,6 +133,8 @@ export function CheckoutForm({
   quantity,
   totalUsdLabel,
   totalBsLabel,
+  totalUsdCopy,
+  totalBsCopy,
   tasaLabel,
   pagoMovilInfo,
   binanceInfo,
@@ -283,24 +288,16 @@ export function CheckoutForm({
               </p>
               <PaymentInfoFields
                 raw={method === "binance" ? binanceInfo : pagoMovilInfo}
+                amount={
+                  method === "binance"
+                    ? { display: `${totalUsdLabel} USDT`, copy: totalUsdCopy }
+                    : { display: totalBsLabel, copy: totalBsCopy }
+                }
               />
               <p className="mt-2 text-xs text-muted-foreground">
-                {method === "binance" ? (
-                  <>
-                    Monto exacto:{" "}
-                    <span className="font-medium text-foreground">
-                      {totalUsdLabel} en USDT
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    Monto exacto:{" "}
-                    <span className="font-medium text-foreground">
-                      {totalBsLabel}
-                    </span>{" "}
-                    (tasa {tasaLabel} Bs/USD)
-                  </>
-                )}
+                {method === "binance"
+                  ? "Envía el monto exacto en USDT."
+                  : `Transfiere el monto exacto (tasa ${tasaLabel} Bs/USD).`}
               </p>
               {method === "binance" && (
                 <p className="mt-1 text-xs text-muted-foreground">

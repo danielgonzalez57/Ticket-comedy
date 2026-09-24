@@ -4,7 +4,13 @@ import { CheckCircle2, Clock, XCircle, MessageCircle } from "lucide-react";
 import { getOrderDetail } from "@/lib/queries";
 import { ReportPaymentForm } from "@/components/report-payment-form";
 import { PaymentInfoFields } from "@/components/payment-info-fields";
-import { formatDualMoney, formatDate } from "@/lib/format";
+import {
+  formatBs,
+  formatDate,
+  formatDualMoney,
+  formatMoney,
+  pasteableAmount,
+} from "@/lib/format";
 import {
   binanceInfo,
   paymentInfo,
@@ -94,6 +100,17 @@ export default async function OrderPage({
                 order.payment_method === "binance"
                   ? binanceInfo()
                   : paymentInfo()
+              }
+              amount={
+                order.payment_method === "binance"
+                  ? {
+                      display: `${formatMoney(order.total_usd)} USDT`,
+                      copy: pasteableAmount(order.total_usd, "."),
+                    }
+                  : {
+                      display: formatBs(order.monto_bs),
+                      copy: pasteableAmount(order.monto_bs, ","),
+                    }
               }
             />
             {order.payment_ref && (

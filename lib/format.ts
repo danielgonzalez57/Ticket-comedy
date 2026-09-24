@@ -28,6 +28,19 @@ export function formatDualMoney(usd: number | string, bs: number | string): stri
   return `${formatMoney(usd)} (${formatBs(bs)})`;
 }
 
+// An amount the way a payment app wants it pasted: no currency sign, no
+// thousands separators, 2 decimals. Venezuelan bank apps take a
+// decimal comma ("8406,70"); Binance takes a dot ("12.00"). Formatting
+// only — the number itself must already come from the DB.
+export function pasteableAmount(
+  value: number | string,
+  decimalMark: "," | "." = ",",
+): string {
+  const n = typeof value === "string" ? Number(value) : value;
+  const fixed = (Number.isFinite(n) ? n : 0).toFixed(2);
+  return decimalMark === "," ? fixed.replace(".", ",") : fixed;
+}
+
 // Exchange rate as Venezuelans write it: 840.67 -> "840,67",
 // 1234.5 -> "1.234,50". Up to 4 decimals (shows.tasa is numeric(12,4)).
 export function formatTasa(value: number | string): string {
