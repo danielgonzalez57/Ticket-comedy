@@ -260,8 +260,25 @@ html:not(.dark) .text-primary {
   }
 }
 
+/* QR viewfinder sweep (admin scanner). */
+@keyframes tc-scanline {
+  0%,
+  100% {
+    top: 6%;
+    opacity: 0.4;
+  }
+  50% {
+    top: 94%;
+    opacity: 1;
+  }
+}
+
 .tc-rise {
   animation: tc-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tc-scanline {
+  animation: tc-scanline 2.4s ease-in-out infinite;
 }
 
 .tc-marquee {
@@ -270,7 +287,8 @@ html:not(.dark) .text-primary {
 
 @media (prefers-reduced-motion: reduce) {
   .tc-rise,
-  .tc-marquee {
+  .tc-marquee,
+  .tc-scanline {
     animation: none !important;
   }
 }
