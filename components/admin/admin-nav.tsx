@@ -109,13 +109,11 @@ export function AdminSidebar({ userEmail }: { userEmail: string | null }) {
   );
 }
 
-// Mobile: compact sticky header — menu button, brand and a one-tap
-// shortcut to the QR scanner (the thing used most from a phone, at
-// the door). The menu opens a slide-in drawer with everything else.
+// Mobile: compact sticky header — menu button and brand. The menu
+// opens a slide-in drawer with every section; the QR scanner also has
+// a prominent card on the dashboard.
 export function AdminTopbar({ userEmail }: { userEmail: string | null }) {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-  const onValidate = pathname.startsWith("/admin/validate");
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl md:hidden">
@@ -162,20 +160,8 @@ export function AdminTopbar({ userEmail }: { userEmail: string | null }) {
 
         <Brand href="/admin" size="default" className="[&_img]:h-10" />
 
-        <Link
-          href="/admin/validate"
-          aria-label="Validar QR"
-          aria-current={onValidate ? "page" : undefined}
-          className={cn(
-            "inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors",
-            onValidate
-              ? "bg-secondary text-foreground"
-              : "bg-primary text-primary-foreground hover:bg-primary/90",
-          )}
-        >
-          <ScanLine className="size-4" />
-          QR
-        </Link>
+        {/* Same width as the menu button, so the brand stays centred. */}
+        <span aria-hidden className="size-10" />
       </div>
     </header>
   );
