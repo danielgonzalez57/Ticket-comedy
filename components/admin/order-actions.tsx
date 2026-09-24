@@ -3,12 +3,13 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CheckCircle2, MessageCircle, Mail } from "lucide-react";
+import { CheckCircle2, Coins, MessageCircle, Mail } from "lucide-react";
 import {
   confirmPayment,
   rejectPayment,
   reassignOrderSeats,
   cancelOrder,
+  checkBinancePayment,
   saveAdminNote,
 } from "@/app/admin/(panel)/orders/actions";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ export function OrderActions({
   status,
   note,
   awaitingReport = false,
+  canCheckBinance = false,
 }: {
   orderId: string;
   status: OrderStatus;
@@ -31,6 +33,8 @@ export function OrderActions({
   // Pending order whose method needs a reported reference first —
   // confirming it would only fail (MUST_REPORT_FIRST), so don't offer it.
   awaitingReport?: boolean;
+  // Reported Binance order — offer the Pay-history lookup.
+  canCheckBinance?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -40,6 +44,15 @@ export function OrderActions({
   const [reassignSeats, setReassignSeats] = useState("");
 
   const actionable = ACTIONABLE.includes(status);
+
+  function checkBinance() {
+    startTransition(async () => {
+      const res = await checkBinancePayment(orderId);
+      if (res.ok) toast.success(res.message);
+      else toast.error(res.message, { duration: 8000 });
+      router.refresh();
+    });
+  }
 
   function confirm() {
     startTransition(async () => {
@@ -123,6 +136,12 @@ export function OrderActions({
     <div className="space-y-4">
       {actionable && (
         <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+          {canCheckBinance && status === "reported" && (
+            <Button variant="secondary" onClick={checkBinance} disabled={pending}>
+              <Coins className="size-4" />
+              Verificar con Binance
+            </Button>
+          )}
           <Button onClick={confirm} disabled={pending || awaitingReport}>
             <CheckCircle2 className="size-4" />
             Confirmar pago

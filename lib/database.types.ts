@@ -159,7 +159,7 @@ export type Database = {
         Returns: Order;
       };
       verify_payment_atomic: {
-        Args: { p_order_id: string; p_verified_by: string };
+        Args: { p_order_id: string; p_verified_by: string | null };
         Returns: Order;
       };
       reject_payment_atomic: {

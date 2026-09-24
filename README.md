@@ -44,6 +44,31 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_WHATSAPP_ADMIN` | WhatsApp del admin, formato `58412…` |
 | `NEXT_PUBLIC_PAYMENT_INFO` | Datos de Pago Móvil mostrados al cliente |
 | `NEXT_PUBLIC_BINANCE_INFO` | Opcional: reemplaza los datos de Binance por defecto (`lib/constants.ts`), mismo formato `Etiqueta: valor \| Etiqueta: valor` |
+| `BINANCE_API_KEY` | Opcional (¡secreta!): API key **solo lectura** de la cuenta que recibe los pagos. Activa la verificación automática de Binance Pay |
+| `BINANCE_API_SECRET` | Opcional (¡secreta!): Secret de esa API key |
+
+#### Correos a clientes (Resend)
+
+`onboarding@resend.dev` (el remitente por defecto) **solo entrega al dueño
+de la cuenta de Resend**. Para enviar a cualquier cliente: agrega tu dominio
+en Resend → Domains, crea los registros DNS que te indica (SPF/DKIM) en tu
+proveedor del dominio, espera a que diga *Verified* y pon
+`RESEND_FROM="Pinto & Aparte <entradas@tudominio.com>"` en Vercel.
+
+#### Verificación automática de Binance Pay
+
+Con `BINANCE_API_KEY`/`BINANCE_API_SECRET` configuradas, al apartar con
+Binance el sistema busca el Order ID en el historial de Binance Pay
+(`GET /sapi/v1/pay/transactions`) y, si es USDT y cubre el total, confirma
+la entrada y envía el correo solo. Si no lo encuentra, la orden queda como
+*Pago reportado* y en el admin aparece **Verificar con Binance**.
+
+- La API key debe ser **solo lectura** (sin trading ni retiros), sin
+  restricción de IP.
+- Binance bloquea peticiones desde EE. UU. Si el admin muestra "Binance
+  rechazó la conexión por la región", cambia en Vercel → Settings →
+  Functions la región a la misma región que tu proyecto de Supabase si no
+  es de EE. UU. (p. ej. `gru1` para São Paulo), para no sumar latencia.
 
 ### 4. Correr en local
 

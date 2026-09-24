@@ -3,108 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { qrPngBuffer } from "@/lib/qr";
-import { sendTicketEmail, sendRejectionEmail } from "@/lib/email";
+import { verifyOrder, type ConfirmResult } from "@/lib/confirm-order";
+import { autoVerifyBinanceOrder, describeAutoVerify } from "@/lib/binance-verify";
+import { sendRejectionEmail } from "@/lib/email";
 import { whatsappUrl, normalizeVePhone, orderCode } from "@/lib/whatsapp";
-import { ticketUrl } from "@/lib/qr";
-import { formatDate } from "@/lib/format";
 import type { Order, Seat, Show } from "@/lib/database.types";
 
-export type ConfirmResult = {
-  ok: boolean;
-  error?: string;
-  emailSent?: boolean;
-  whatsappUrl?: string;
-  seatsLost?: boolean;
-};
+export type { ConfirmResult };
 
-function seatsLostMessage(msg: string): string | null {
-  const lost = msg.match(/SEATS_LOST:\s*(.+)/)?.[1]?.trim();
-  if (!lost) return null;
-  return `No se pudo confirmar: el/los asiento(s) ${lost} ya no están reservados para esta orden (probablemente se revendieron por vencimiento del hold). Reasígnale otro asiento o recházala abajo.`;
-}
-
-// Verifies a pending/reported order: atomically checks its seats are
-// still held by this order (via verify_payment_atomic — see
-// supabase/migrations/0001_seat_hold_ownership.sql and 0005), marks
-// them sold and the order verified, sends the ticket email, and
-// returns a prefilled WhatsApp link for the admin.
+// Admin "Confirmar pago" — see verifyOrder for what confirming does.
 export async function confirmPayment(orderId: string): Promise<ConfirmResult> {
   const user = await requireUser();
-  const admin = createAdminClient();
-
-  const { data: confirmed, error: confirmErr } = await admin.rpc(
-    "verify_payment_atomic",
-    { p_order_id: orderId, p_verified_by: user.id },
-  );
-
-  if (confirmErr || !confirmed) {
-    const msg = confirmErr?.message ?? "";
-    const lostMessage = seatsLostMessage(msg);
-    if (lostMessage) return { ok: false, error: lostMessage, seatsLost: true };
-    if (msg.includes("ORDER_CANCELLED")) {
-      return { ok: false, error: "La orden está cancelada." };
-    }
-    if (msg.includes("ORDER_REJECTED")) {
-      return { ok: false, error: "La orden fue rechazada." };
-    }
-    if (msg.includes("ORDER_EXPIRED")) {
-      return { ok: false, error: "La orden venció." };
-    }
-    if (msg.includes("ORDER_NOT_FOUND")) {
-      return { ok: false, error: "No se encontró la orden." };
-    }
-    if (msg.includes("MUST_REPORT_FIRST")) {
-      return {
-        ok: false,
-        error:
-          "Este método de pago requiere conciliación: la orden debe pasar por 'reportado' (con banco y referencia) antes de poder confirmarse.",
-      };
-    }
-    if (msg.includes("NEEDS_REVIEW")) {
-      return {
-        ok: false,
-        error:
-          "Esta orden tiene un conflicto de referencia sin resolver. Resuélvelo (abajo) antes de confirmar el pago.",
-      };
-    }
-    return { ok: false, error: "No se pudo confirmar el pago." };
-  }
-
-  const order = confirmed as Order;
-
-  // Load show + seats for the email / message.
-  const [{ data: show }, { data: seats }] = await Promise.all([
-    admin.from("shows").select("*").eq("id", order.show_id).single(),
-    admin.from("seats").select("*").in("id", order.seat_ids),
-  ]);
-
-  let emailSent = false;
-  if (show) {
-    const qrPng = await qrPngBuffer(order.qr_token);
-    emailSent = await sendTicketEmail({
-      order,
-      show: show as Show,
-      seats: (seats ?? []) as Seat[],
-      qrPng,
-    });
-  }
-
-  const seatLabels = ((seats ?? []) as Seat[]).map((s) => s.label).join(", ");
-  const message = show
-    ? `¡Hola ${order.customer_name}! Tu pago para *${(show as Show).name}* fue confirmado ✅\n\n` +
-      `📅 ${formatDate((show as Show).date)}\n📍 ${(show as Show).venue}\n` +
-      `🎟️ Asiento(s): ${seatLabels}\nCódigo: ${orderCode(order.id)}\n\n` +
-      `Tu entrada: ${ticketUrl(order.qr_token)}`
-    : `¡Hola ${order.customer_name}! Tu pago fue confirmado. Tu entrada: ${ticketUrl(order.qr_token)}`;
-
-  const wa = whatsappUrl(normalizeVePhone(order.customer_phone), message);
-
-  revalidatePath(`/admin/orders/${orderId}`);
-  revalidatePath("/admin/orders");
-  revalidatePath("/admin");
-
-  return { ok: true, emailSent, whatsappUrl: wa };
+  return verifyOrder(orderId, user.id);
 }
 
 // Rejects a pending/reported order with a mandatory reason (via
@@ -317,4 +227,16 @@ export async function resolvePaymentConflict(
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/orders");
   return { ok: true };
+}
+
+// "Verificar con Binance" on a reported Binance order: looks the
+// customer's Order ID up in the Pay history and confirms the order if
+// it checks out (same rules as the automatic check at checkout).
+export async function checkBinancePayment(
+  orderId: string,
+): Promise<{ ok: boolean; message: string }> {
+  await requireUser();
+  const result = await autoVerifyBinanceOrder(orderId);
+  revalidatePath(`/admin/orders/${orderId}`);
+  return describeAutoVerify(result);
 }

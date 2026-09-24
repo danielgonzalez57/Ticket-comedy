@@ -214,6 +214,7 @@ export default async function AdminOrderDetailPage({
           orderId={order.id}
           status={order.status}
           note={order.admin_note}
+          canCheckBinance={order.payment_method === "binance"}
           awaitingReport={
             order.status === "pending" &&
             order.payment_method != null &&

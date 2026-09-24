@@ -15,6 +15,8 @@ import {
   validatePaymentReport,
 } from "@/lib/payment-report";
 import { reportPayment } from "@/app/(public)/orders/[id]/actions";
+import { binanceConfigured } from "@/lib/binance";
+import { autoVerifyBinanceOrder } from "@/lib/binance-verify";
 
 export type CheckoutState = { error: string | null };
 
@@ -107,6 +109,16 @@ export async function createOrder(
   }
 
   const reported = await reportPayment(order.id, { email, ...payment });
+  // Binance payments can be confirmed on the spot from the Pay history.
+  // Fails soft: if it can't (not there yet, Binance down, not
+  // configured) the order just stays 'reported' for the admin.
+  if (reported.ok && method === "binance" && binanceConfigured()) {
+    try {
+      await autoVerifyBinanceOrder(order.id);
+    } catch (e) {
+      console.error("[checkout] binance auto-verify failed:", e);
+    }
+  }
   redirect(
     reported.ok ? `/orders/${order.id}` : `/orders/${order.id}?reporte=fallido`,
   );
