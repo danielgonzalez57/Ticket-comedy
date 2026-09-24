@@ -23,25 +23,26 @@ export function ShowCard({ show }: { show: ShowWithBs }) {
       href={`/shows/${show.id}`}
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_0_40px_-12px_rgba(59,130,246,0.3)]"
     >
-      {/* Poster */}
-      <div className="relative aspect-4/5 w-full overflow-hidden bg-secondary">
+      {/* Poster — framed inside the card and shown in full colour; only
+          a short neutral shade at the very bottom, same in both themes. */}
+      <div className="relative m-2 mb-0 aspect-4/5 overflow-hidden rounded-xl bg-secondary shadow-md ring-1 ring-black/5 dark:ring-white/10">
         {show.poster_url ? (
           <Image
             src={show.poster_url}
             alt={show.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-muted-foreground/40">
             <Ticket className="size-10" />
           </div>
         )}
-        <div className="absolute inset-0 bg-linear-to-t from-card via-card/30 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/5 bg-linear-to-t from-black/30 to-transparent" />
 
         {/* Date stamp */}
-        <div className="absolute left-3 top-3 flex flex-col items-center rounded-lg border border-primary/30 bg-background/80 px-2.5 py-1 backdrop-blur">
+        <div className="absolute left-2.5 top-2.5 flex flex-col items-center rounded-lg bg-background/95 px-2.5 py-1 shadow-lg ring-1 ring-black/5 backdrop-blur dark:ring-white/10">
           <span className="font-heading text-lg font-extrabold leading-none text-highlight">
             {day}
           </span>
