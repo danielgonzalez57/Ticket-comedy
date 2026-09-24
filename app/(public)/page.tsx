@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Coins, QrCode, Smartphone, Ticket } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ShowCard } from "@/components/show-card";
 import { TypewriterHero } from "@/components/typewriter-hero";
@@ -23,21 +23,47 @@ export default async function HomePage() {
   return (
     <div className="space-y-12">
       {/* Hero */}
-      <section className="tc-rise space-y-2 pt-4 sm:pt-8">
+      <section className="tc-rise space-y-5 pt-2 sm:pt-8">
         <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
           <span className="h-px w-8 bg-primary" />
-          Pinto &amp; Aparte
+          Stand-up · Pinto &amp; Aparte
         </p>
         <TypewriterHero />
-        <p className="max-w-md text-base text-muted-foreground">
-          Escoge tu show, pica el puesto en el mapa y asegura tu boleto en
-          minutos — así de fácil. Pagas con Pago Móvil o Binance, sin vueltas
-          ni excusas.
+        <p className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
+          Escoge tu show, aparta tus entradas y paga con Pago Móvil o Binance.
+          Tu entrada con QR te llega al correo — sin vueltas ni excusas.
         </p>
+        <div className="flex flex-col gap-3 pt-1 sm:flex-row">
+          <a
+            href="#cartelera"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <Ticket className="size-5" />
+            Ver cartelera
+          </a>
+          <Link
+            href="/mis-entradas"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-border px-6 text-base font-medium transition-colors hover:border-primary/50 hover:text-accent-ink"
+          >
+            Mis entradas
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+        <ul className="flex flex-wrap gap-x-5 gap-y-2 pt-1 text-sm text-muted-foreground">
+          <li className="flex items-center gap-1.5">
+            <Smartphone className="size-4 text-accent-ink" /> Pago Móvil
+          </li>
+          <li className="flex items-center gap-1.5">
+            <Coins className="size-4 text-accent-ink" /> Binance
+          </li>
+          <li className="flex items-center gap-1.5">
+            <QrCode className="size-4 text-accent-ink" /> Entrada con QR
+          </li>
+        </ul>
       </section>
 
       {/* Shows */}
-      <section className="space-y-5">
+      <section id="cartelera" className="scroll-mt-20 space-y-5">
         <div className="flex items-baseline justify-between">
           <h2 className="font-heading text-2xl font-bold uppercase tracking-tight">
             En cartelera
