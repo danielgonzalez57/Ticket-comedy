@@ -240,13 +240,11 @@ html:not(.dark) .text-primary {
 }
 
 /* The logo art is white lettering with yellow accents, made for dark
-   backgrounds. On the light theme it gets a thin dark sticker-style
-   outline plus a soft shadow so the white reads on cream; dark theme
-   shows it untouched. */
+   backgrounds. On the light theme a soft shadow (no outline) lifts the
+   white off the cream; dark theme shows it untouched. */
 .tc-logo {
-  filter: drop-shadow(1px 0 0 #121210) drop-shadow(-1px 0 0 #121210)
-    drop-shadow(0 1px 0 #121210) drop-shadow(0 -1px 0 #121210)
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 3px 8px rgba(0, 0, 0, 0.3));
 }
 .dark .tc-logo {
   filter: none;
