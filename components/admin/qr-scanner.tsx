@@ -408,7 +408,7 @@ function ResultCard({
           )}
           {result.seats && (
             <div className="flex justify-between gap-4 p-4">
-              <dt className="text-muted-foreground">Asiento(s)</dt>
+              <dt className="text-muted-foreground">Entradas</dt>
               <dd className="text-right font-semibold">{result.seats}</dd>
             </div>
           )}

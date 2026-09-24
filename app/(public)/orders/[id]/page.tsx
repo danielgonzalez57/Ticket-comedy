@@ -80,10 +80,8 @@ export default async function OrderPage({
 
         <div className="mt-4 border-t border-border pt-4 text-sm">
           <p className="text-muted-foreground">
-            Asientos:{" "}
-            <span className="text-foreground">
-              {seats.map((s) => s.label).join(", ")}
-            </span>
+            Entradas:{" "}
+            <span className="text-foreground">{seats.length}</span>
           </p>
           <p className="text-muted-foreground">
             A nombre de <span className="text-foreground">{order.customer_name}</span>

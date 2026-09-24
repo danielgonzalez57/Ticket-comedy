@@ -93,11 +93,10 @@ export async function verifyOrder(
     });
   }
 
-  const seatLabels = ((seats ?? []) as Seat[]).map((s) => s.label).join(", ");
   const message = show
     ? `¡Hola ${order.customer_name}! Tu pago para *${(show as Show).name}* fue confirmado ✅\n\n` +
       `📅 ${formatDate((show as Show).date)}\n📍 ${(show as Show).venue}\n` +
-      `🎟️ Asiento(s): ${seatLabels}\nCódigo: ${orderCode(order.id)}\n\n` +
+      `🎟️ Entradas: ${order.seat_ids.length}\nCódigo: ${orderCode(order.id)}\n\n` +
       `Tu entrada: ${ticketUrl(order.qr_token)}`
     : `¡Hola ${order.customer_name}! Tu pago fue confirmado. Tu entrada: ${ticketUrl(order.qr_token)}`;
 

@@ -51,11 +51,7 @@ export default async function TicketPage({
           <div className="grid grid-cols-2 gap-3 border-t border-border pt-3 text-sm">
             <Field label="A nombre de" value={order.customer_name} />
             <Field label="Código" value={orderCode(order.id)} mono />
-            <Field
-              label="Asiento(s)"
-              value={seats.map((s) => s.label).join(", ")}
-            />
-            <Field label="Cantidad" value={String(seats.length)} />
+            <Field label="Entradas" value={String(seats.length)} />
           </div>
         </div>
       </div>

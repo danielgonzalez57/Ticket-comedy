@@ -65,7 +65,7 @@ export async function validateTicket(raw: string): Promise<ValidateResult> {
   const base = {
     customerName: order.customer_name,
     showName: show?.name,
-    seats: seats.map((s) => s.label).join(", "),
+    seats: String(seats.length),
     code: order.id.slice(0, 8).toUpperCase(),
   };
 

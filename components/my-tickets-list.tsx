@@ -67,7 +67,7 @@ export function MyTicketsList({
                   {show ? formatDate(show.date) : ""}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Asientos: {seats.map((s) => s.label).join(", ") || "—"}
+                  {seats.length} {seats.length === 1 ? "entrada" : "entradas"}
                 </p>
               </div>
               <OrderStatusBadge status={order.status} />
@@ -90,7 +90,8 @@ export function MyTicketsList({
                 </p>
                 <p className="text-xs text-muted-foreground">
                   #{orderCode(order.id)} · {formatShortDate(order.created_at)}
-                  {seats.length > 0 && ` · ${seats.map((s) => s.label).join(", ")}`}
+                  {seats.length > 0 &&
+                    ` · ${seats.length} ${seats.length === 1 ? "entrada" : "entradas"}`}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {formatDualMoney(order.total_usd, order.monto_bs)}
