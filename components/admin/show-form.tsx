@@ -210,7 +210,7 @@ export function ShowForm({ action, show, seatCount, submitLabel }: Props) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tasa">Tasa (Bs por USD)</Label>
+              <Label htmlFor="tasa">Tasa BCV (Bs por USD)</Label>
               {/* Text, not type="number": a number input shows the
                   browser's locale separator and can drop "840,67". */}
               <Input

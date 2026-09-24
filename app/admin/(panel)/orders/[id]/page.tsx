@@ -188,7 +188,7 @@ export default async function AdminOrderDetailPage({
           }
         />
         <Row
-          label={`Tasa (${formatDateOnly(order.tasa_fecha.slice(0, 10))})`}
+          label={`Tasa BCV (${formatDateOnly(order.tasa_fecha.slice(0, 10))})`}
           value={`${formatTasa(order.tasa)} Bs/USD`}
         />
         <div className="mt-2 flex justify-between border-t border-border pt-3 font-medium">

@@ -297,7 +297,7 @@ export function CheckoutForm({
               <p className="mt-2 text-xs text-muted-foreground">
                 {method === "binance"
                   ? "Envía el monto exacto en USDT."
-                  : `Transfiere el monto exacto (tasa ${tasaLabel} Bs/USD).`}
+                  : `Transfiere el monto exacto (tasa BCV: ${tasaLabel} Bs/USD).`}
               </p>
               {method === "binance" && (
                 <p className="mt-1 text-xs text-muted-foreground">
