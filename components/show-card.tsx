@@ -21,7 +21,7 @@ export function ShowCard({ show }: { show: ShowWithBs }) {
   return (
     <Link
       href={`/shows/${show.id}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_0_40px_-12px_rgba(59,130,246,0.3)]"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_0_40px_-12px_rgba(59,130,246,0.3)] active:scale-[0.985] active:duration-100"
     >
       {/* Poster — framed inside the card and shown in full colour; only
           a short neutral shade at the very bottom, same in both themes. */}
@@ -67,17 +67,21 @@ export function ShowCard({ show }: { show: ShowWithBs }) {
 
       {/* Ticket-stub footer */}
       <div className="tc-perf h-3.5 w-full opacity-60" />
-      <div className="flex items-center justify-between px-4 py-3">
-        <span className="text-sm">
-          <span className="text-muted-foreground">Desde </span>
-          <span className="font-heading font-bold text-foreground">
-            {formatMoney(show.base_price)}
+      <div className="flex items-center justify-between gap-3 px-4 py-3">
+        {/* Wraps as whole pieces on narrow phones: the Bs amount drops to
+            its own line instead of breaking mid-number. */}
+        <span className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 text-sm">
+          <span className="whitespace-nowrap">
+            <span className="text-muted-foreground">Desde </span>
+            <span className="font-heading font-bold text-foreground">
+              {formatMoney(show.base_price)}
+            </span>
           </span>
-          <span className="text-muted-foreground">
-            {" "}({formatBs(show.base_price_bs)})
+          <span className="whitespace-nowrap text-muted-foreground">
+            ({formatBs(show.base_price_bs)})
           </span>
         </span>
-        <span className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform duration-300 group-hover:rotate-45">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform duration-300 group-hover:rotate-45">
           <ArrowUpRight className="size-4" />
         </span>
       </div>
