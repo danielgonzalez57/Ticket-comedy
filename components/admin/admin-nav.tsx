@@ -117,7 +117,7 @@ export function AdminTopbar({ userEmail }: { userEmail: string | null }) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl md:hidden">
-      <div className="flex h-14 items-center justify-between gap-2 px-2">
+      <div className="flex h-16 items-center justify-between gap-2 px-2">
         <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
           <DialogPrimitive.Trigger
             aria-label="Abrir menú"
@@ -158,7 +158,7 @@ export function AdminTopbar({ userEmail }: { userEmail: string | null }) {
           </DialogPrimitive.Portal>
         </DialogPrimitive.Root>
 
-        <Brand href="/admin" size="default" className="[&_img]:h-10" />
+        <Brand href="/admin" size="default" className="[&_img]:h-14" />
 
         {/* Same width as the menu button, so the brand stays centred. */}
         <span aria-hidden className="size-10" />
