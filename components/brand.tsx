@@ -27,7 +27,7 @@ export function Brand({
         priority
         className={cn(
           SIZES[size],
-          "w-auto transition-transform duration-300 group-hover:scale-105",
+          "tc-logo w-auto transition-transform duration-300 group-hover:scale-105",
         )}
       />
     </Link>

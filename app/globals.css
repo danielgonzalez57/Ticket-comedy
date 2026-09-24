@@ -239,6 +239,19 @@ html:not(.dark) .text-primary {
   text-shadow: 0 0 20px var(--tc-glow-neutral);
 }
 
+/* The logo art is white lettering with yellow accents, made for dark
+   backgrounds. On the light theme it gets a thin dark sticker-style
+   outline plus a soft shadow so the white reads on cream; dark theme
+   shows it untouched. */
+.tc-logo {
+  filter: drop-shadow(1px 0 0 #121210) drop-shadow(-1px 0 0 #121210)
+    drop-shadow(0 1px 0 #121210) drop-shadow(0 -1px 0 #121210)
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+.dark .tc-logo {
+  filter: none;
+}
+
 /* ── Motion ─────────────────────────────────────────────────── */
 @keyframes tc-rise {
   from {
