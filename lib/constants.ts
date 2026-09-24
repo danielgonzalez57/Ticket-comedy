@@ -91,7 +91,7 @@ export function binanceInfo(): string {
 // Binance Pay QR shown next to the Binance payment data at checkout.
 // Put the image in /public (e.g. public/binance-qr.png) and set its
 // path here; null hides the QR slot.
-export const BINANCE_QR_SRC: string | null = null;
+export const BINANCE_QR_SRC: string | null = "/binance-qr.png";
 
 export function whatsappAdmin(): string {
   return process.env.NEXT_PUBLIC_WHATSAPP_ADMIN || "";

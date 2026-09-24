@@ -258,15 +258,22 @@ export function CheckoutForm({
           <div key={method} className="tc-rise space-y-5 pt-1">
             <div className="flex flex-col gap-4 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm sm:flex-row sm:items-center">
               {method === "binance" && BINANCE_QR_SRC && (
-                <div className="mx-auto shrink-0 rounded-xl bg-white p-2 shadow-sm sm:mx-0">
-                  <Image
-                    src={BINANCE_QR_SRC}
-                    alt="QR de Binance Pay"
-                    width={128}
-                    height={128}
-                    className="size-32"
-                  />
-                </div>
+                <figure className="mx-auto shrink-0 space-y-1.5 text-center sm:mx-0">
+                  <div className="rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-black/5">
+                    {/* unoptimized: lossy re-encoding blurs QR modules. */}
+                    <Image
+                      src={BINANCE_QR_SRC}
+                      alt="QR de Binance Pay"
+                      width={160}
+                      height={160}
+                      unoptimized
+                      className="size-40"
+                    />
+                  </div>
+                  <figcaption className="text-[11px] text-muted-foreground">
+                    Escanea con Binance
+                  </figcaption>
+                </figure>
               )}
               <div className="min-w-0 flex-1">
               <p className="font-medium">
