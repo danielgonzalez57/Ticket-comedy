@@ -79,12 +79,19 @@ export function paymentInfo(): string {
 }
 
 // Same "Label: value | Label: value" convention as paymentInfo().
+// Defaults to the account payments go to; NEXT_PUBLIC_BINANCE_INFO
+// overrides it without a code change.
 export function binanceInfo(): string {
   return (
     process.env.NEXT_PUBLIC_BINANCE_INFO ||
-    "Configura NEXT_PUBLIC_BINANCE_INFO con tus datos de Binance."
+    "Correo Binance Pay: ernesto9512@gmail.com"
   );
 }
+
+// Binance Pay QR shown next to the Binance payment data at checkout.
+// Put the image in /public (e.g. public/binance-qr.png) and set its
+// path here; null hides the QR slot.
+export const BINANCE_QR_SRC: string | null = null;
 
 export function whatsappAdmin(): string {
   return process.env.NEXT_PUBLIC_WHATSAPP_ADMIN || "";

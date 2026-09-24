@@ -2,12 +2,13 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
+import Image from "next/image";
 import { Check, Coins, Smartphone } from "lucide-react";
 import {
   createOrder,
   type CheckoutState,
 } from "@/app/(public)/shows/[id]/checkout/actions";
-import { PAYMENT_METHOD_LABELS } from "@/lib/constants";
+import { BINANCE_QR_SRC, PAYMENT_METHOD_LABELS } from "@/lib/constants";
 import { normalizeCedula, validatePaymentReport } from "@/lib/payment-report";
 import { cn } from "@/lib/utils";
 import {
@@ -255,10 +256,22 @@ export function CheckoutForm({
 
         {method && (
           <div key={method} className="tc-rise space-y-5 pt-1">
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
+            <div className="flex flex-col gap-4 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm sm:flex-row sm:items-center">
+              {method === "binance" && BINANCE_QR_SRC && (
+                <div className="mx-auto shrink-0 rounded-xl bg-white p-2 shadow-sm sm:mx-0">
+                  <Image
+                    src={BINANCE_QR_SRC}
+                    alt="QR de Binance Pay"
+                    width={128}
+                    height={128}
+                    className="size-32"
+                  />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
               <p className="font-medium">
                 {method === "binance"
-                  ? "Envía tu pago por Binance Pay"
+                  ? "Envía tu pago por Binance Pay a"
                   : "Haz tu Pago Móvil a"}
               </p>
               <PaymentInfoFields
@@ -282,6 +295,12 @@ export function CheckoutForm({
                   </>
                 )}
               </p>
+              {method === "binance" && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  En Binance: Pay → Enviar → elige &quot;Correo&quot; y pega la dirección.
+                </p>
+              )}
+              </div>
             </div>
 
             <div className="space-y-4">

@@ -14,14 +14,11 @@ export default async function MisEntradasPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-md space-y-6">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Mis entradas</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Ingresa el correo con el que compraste. Te enviamos un código para
-            entrar, sin contraseña.
-          </p>
-        </div>
+      <div className="relative isolate mx-auto flex max-w-sm justify-center py-6 sm:py-12">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-10 left-1/2 -z-10 size-80 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+        />
         <CustomerLoginForm />
       </div>
     );

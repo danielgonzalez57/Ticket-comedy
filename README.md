@@ -43,7 +43,7 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SITE_URL` | URL pública del sitio (para QR/links) |
 | `NEXT_PUBLIC_WHATSAPP_ADMIN` | WhatsApp del admin, formato `58412…` |
 | `NEXT_PUBLIC_PAYMENT_INFO` | Datos de Pago Móvil mostrados al cliente |
-| `NEXT_PUBLIC_BINANCE_INFO` | Datos de Binance mostrados al cliente (mismo formato `Etiqueta: valor \| Etiqueta: valor`) |
+| `NEXT_PUBLIC_BINANCE_INFO` | Opcional: reemplaza los datos de Binance por defecto (`lib/constants.ts`), mismo formato `Etiqueta: valor \| Etiqueta: valor` |
 
 ### 4. Correr en local
 
