@@ -72,6 +72,46 @@ export function PaymentInfoFields({ raw }: { raw: string }) {
           <CopyButton value={field.value} />
         </div>
       ))}
+      {fields.length > 1 && (
+        <CopyAllButton
+          value={fields.map((f) => `${f.label}: ${f.value}`).join("\n")}
+        />
+      )}
     </div>
+  );
+}
+
+// Copies every field at once, one "Label: value" per line — handy for
+// pasting the whole block into a chat or notes before paying.
+function CopyAllButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      toast.success("Datos copiados");
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      toast.error("No se pudo copiar");
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="mt-2 inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-primary/30 bg-background/60 text-sm font-medium text-foreground transition-colors hover:border-primary/60 hover:bg-background"
+    >
+      {copied ? (
+        <>
+          <Check className="size-4 text-primary" /> Copiado
+        </>
+      ) : (
+        <>
+          <Copy className="size-4" /> Copiar todo
+        </>
+      )}
+    </button>
   );
 }
