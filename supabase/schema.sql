@@ -18,7 +18,8 @@ create table if not exists shows (
   venue text not null,
   date timestamptz not null,
   comedians text[] not null default '{}',
-  poster_url text,
+  poster_url text,               -- medium card image (home/cartelera)
+  banner_url text,               -- wide image on the show detail page
   grid_rows int not null default 5,
   grid_cols int not null default 10,
   base_price numeric(10,2) not null,
@@ -56,6 +57,7 @@ create table if not exists orders (
   customer_email text not null,
   customer_phone text not null,
   cedula text,
+  binance_email text,            -- customer's Binance email (optional)
   seat_ids uuid[] not null,
 
   -- Currency snapshot, copied from the show at creation time and
@@ -94,7 +96,11 @@ create table if not exists orders (
   admin_note text,
   created_at timestamptz default now(),
   constraint orders_payment_ref_format
-    check (payment_ref is null or payment_ref ~ '^[0-9]{6,8}$')
+    check (
+      payment_ref is null
+      or payment_ref ~ '^[0-9]{6,8}$'
+      or (payment_method = 'binance' and payment_ref ~ '^[0-9]{6,32}$')
+    )
 );
 
 -- seats.held_by_order_id references orders, so it's added after both

@@ -37,6 +37,8 @@ export default async function ShowDetailPage({
 
   if (!show) notFound();
   const typedShow = show as ShowWithBs;
+  // The wide banner belongs here; older shows only have the card poster.
+  const heroImage = typedShow.banner_url ?? typedShow.poster_url;
   const seatList = (seats ?? []) as SeatWithBs[];
   const available = seatList.filter((s) => effectiveStatus(s) === "available").length;
 
@@ -52,9 +54,9 @@ export default async function ShowDetailPage({
       {/* Hero */}
       <section className="tc-rise relative overflow-hidden rounded-2xl border border-border">
         <div className="relative aspect-4/5 w-full bg-secondary sm:aspect-video">
-          {typedShow.poster_url ? (
+          {heroImage ? (
             <Image
-              src={typedShow.poster_url}
+              src={heroImage}
               alt={typedShow.name}
               fill
               sizes="(max-width: 1024px) 100vw, 1024px"

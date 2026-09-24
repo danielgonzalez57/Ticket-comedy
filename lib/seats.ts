@@ -35,26 +35,41 @@ export function isSelectable(seat: Pick<Seat, "status" | "hold_expires_at">) {
   return effectiveStatus(seat) === "available";
 }
 
-// Generates the seat rows for a freshly created show.
+// Seats are assigned first-come-first-served (see
+// migrations/0014_fcfs_seat_assignment.sql), so the admin only picks a
+// capacity. Seats are still laid out in fixed-width rows because the
+// assignment order and the seat editor both rely on row/col indexes.
+export const SEATS_PER_ROW = 10;
+export const MIN_CAPACITY = 1;
+export const MAX_CAPACITY = 1000;
+
+export function gridForCapacity(capacity: number) {
+  return {
+    rows: Math.ceil(capacity / SEATS_PER_ROW),
+    cols: Math.min(capacity, SEATS_PER_ROW),
+  };
+}
+
+// Generates exactly `capacity` seats for a freshly created show; the
+// last row is partial when capacity isn't a multiple of SEATS_PER_ROW.
 export function generateSeats(
   showId: string,
-  rows: number,
-  cols: number,
+  capacity: number,
   basePrice: number,
 ): Array<Pick<Seat, "show_id" | "label" | "row_index" | "col_index" | "price" | "zone" | "status">> {
   const seats = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      seats.push({
-        show_id: showId,
-        label: seatLabel(r, c),
-        row_index: r,
-        col_index: c,
-        price: basePrice,
-        zone: "general",
-        status: "available" as SeatStatus,
-      });
-    }
+  for (let i = 0; i < capacity; i++) {
+    const r = Math.floor(i / SEATS_PER_ROW);
+    const c = i % SEATS_PER_ROW;
+    seats.push({
+      show_id: showId,
+      label: seatLabel(r, c),
+      row_index: r,
+      col_index: c,
+      price: basePrice,
+      zone: "general",
+      status: "available" as SeatStatus,
+    });
   }
   return seats;
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { OrderStatusBadge } from "@/components/status-badge";
-import { QuerySelect } from "@/components/admin/query-select";
+import { QuerySelect } from "@/components/query-select";
 import { QuerySearch } from "@/components/admin/query-search";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -92,7 +92,7 @@ export default async function OrdersPage({
               key={o.id}
               href={`/admin/orders/${o.id}`}
               className={cn(
-                "flex items-center justify-between gap-4 p-4 transition-colors hover:bg-secondary/40",
+                "flex flex-col gap-2 p-4 transition-colors hover:bg-secondary/40 sm:flex-row sm:items-center sm:justify-between sm:gap-4",
                 o.needs_review && "bg-destructive/5",
               )}
             >
@@ -108,7 +108,7 @@ export default async function OrdersPage({
                   {formatShortDate(o.created_at)}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-3 text-sm">
+              <div className="flex shrink-0 flex-wrap items-center gap-2 text-sm sm:gap-3">
                 {o.needs_review && (
                   <Badge className="gap-1 border-transparent bg-destructive/15 text-destructive">
                     <AlertTriangle className="size-3" />

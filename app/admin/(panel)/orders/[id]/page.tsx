@@ -10,21 +10,23 @@ import { OrderStatusBadge } from "@/components/status-badge";
 import { cn } from "@/lib/utils";
 import {
   formatDualMoney,
+  formatMoney,
   formatBs,
   formatDate,
   formatShortDate,
   formatDateOnly,
+  formatTasa,
 } from "@/lib/format";
 import { orderCode } from "@/lib/whatsapp";
-import { PAYMENT_METHOD_LABELS } from "@/lib/constants";
+import { BANK_RECONCILED_METHODS, PAYMENT_METHOD_LABELS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex justify-between gap-4 py-1.5 text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="text-right">{value}</span>
+      <span className="shrink-0 text-muted-foreground">{label}</span>
+      <span className="min-w-0 break-words text-right">{value}</span>
     </div>
   );
 }
@@ -132,12 +134,21 @@ export default async function AdminOrderDetailPage({
               : "—"
           }
         />
-        <Row label="Referencia" value={order.payment_ref || "—"} />
-        <Row label="Banco emisor" value={order.banco_emisor || "—"} />
         <Row
-          label="Monto reportado"
+          label={order.payment_method === "binance" ? "Order ID" : "Referencia"}
+          value={order.payment_ref || "—"}
+        />
+        {order.payment_method === "binance" ? (
+          <Row label="Correo Binance" value={order.binance_email || "—"} />
+        ) : (
+          <Row label="Banco emisor" value={order.banco_emisor || "—"} />
+        )}
+        <Row
+          label={order.payment_method === "binance" ? "Monto a recibir" : "Monto reportado"}
           value={
-            order.monto_reportado != null ? (
+            order.payment_method === "binance" ? (
+              `${formatMoney(order.total_usd)} en USDT`
+            ) : order.monto_reportado != null ? (
               <span className={cn(amountMismatch && "font-medium text-destructive")}>
                 {formatBs(order.monto_reportado)}
                 {amountMismatch && " ⚠"}
@@ -178,7 +189,7 @@ export default async function AdminOrderDetailPage({
         />
         <Row
           label={`Tasa (${formatDateOnly(order.tasa_fecha.slice(0, 10))})`}
-          value={`${order.tasa} Bs/USD`}
+          value={`${formatTasa(order.tasa)} Bs/USD`}
         />
         <div className="mt-2 flex justify-between border-t border-border pt-3 font-medium">
           <span>Total</span>
@@ -203,6 +214,11 @@ export default async function AdminOrderDetailPage({
           orderId={order.id}
           status={order.status}
           note={order.admin_note}
+          awaitingReport={
+            order.status === "pending" &&
+            order.payment_method != null &&
+            BANK_RECONCILED_METHODS.includes(order.payment_method)
+          }
         />
       </div>
     </div>

@@ -28,6 +28,40 @@ export function formatDualMoney(usd: number | string, bs: number | string): stri
   return `${formatMoney(usd)} (${formatBs(bs)})`;
 }
 
+// Exchange rate as Venezuelans write it: 840.67 -> "840,67",
+// 1234.5 -> "1.234,50". Up to 4 decimals (shows.tasa is numeric(12,4)).
+export function formatTasa(value: number | string): string {
+  const n = typeof value === "string" ? Number(value) : value;
+  return new Intl.NumberFormat("es-VE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  }).format(Number.isFinite(n) ? n : 0);
+}
+
+// Same as formatTasa but without thousands separators, for prefilling
+// an editable input: 1234.5 -> "1234,50".
+export function formatTasaInput(value: number | string): string {
+  return formatTasa(value).replace(/\./g, "");
+}
+
+// Parses a decimal typed with either separator: "840,67", "840.67",
+// "1.234,56" and "1234,56" all work. With both separators present the
+// last one is the decimal mark. Returns NaN for anything else.
+export function parseDecimal(raw: string): number {
+  let s = raw.trim().replace(/\s/g, "");
+  if (!/^\d[\d.,]*$/.test(s)) return NaN;
+  const lastComma = s.lastIndexOf(",");
+  const lastDot = s.lastIndexOf(".");
+  if (lastComma >= 0 && lastDot >= 0) {
+    const decimalMark = lastComma > lastDot ? "," : ".";
+    const thousands = decimalMark === "," ? "." : ",";
+    s = s.split(thousands).join("").replace(decimalMark, ".");
+  } else if (lastComma >= 0) {
+    s = s.replace(",", ".");
+  }
+  return /^\d+(\.\d+)?$/.test(s) ? Number(s) : NaN;
+}
+
 // NOTE: there is deliberately no client-side USD -> Bs conversion
 // helper here. A previous version of this file had one (bsFromUsd)
 // for pre-order previews, computing `usd * tasa` in JS — but Postgres

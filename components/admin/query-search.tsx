@@ -50,14 +50,14 @@ function QuerySearchInput({
   }
 
   return (
-    <div className={`relative ${className ?? ""}`}>
+    <div className={`relative w-full sm:w-auto ${className ?? ""}`}>
       <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
       <input
         type="text"
         defaultValue={initial}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-9 w-56 rounded-lg border border-input bg-transparent pl-8 pr-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+        className="h-9 w-full rounded-lg border border-input bg-card pl-8 sm:w-56 pr-3 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground hover:border-foreground/25 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:border-foreground/20"
       />
     </div>
   );

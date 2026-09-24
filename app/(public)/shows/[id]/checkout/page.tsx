@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Info } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { CheckoutForm } from "@/components/checkout-form";
-import { PaymentInfoFields } from "@/components/payment-info-fields";
 import { effectiveStatus } from "@/lib/seats";
-import { formatMoney, formatBs } from "@/lib/format";
-import { paymentInfo, MAX_SEATS_PER_ORDER } from "@/lib/constants";
+import { formatMoney, formatBs, formatTasa } from "@/lib/format";
+import {
+  binanceInfo,
+  paymentInfo,
+  MAX_SEATS_PER_ORDER,
+} from "@/lib/constants";
 import type { SeatWithBs, ShowWithBs } from "@/lib/database.types";
 
 export const dynamic = "force-dynamic";
@@ -106,27 +108,15 @@ export default async function CheckoutPage({
         </div>
       </div>
 
-      <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
-        <div className="flex gap-2">
-          <Info className="mt-0.5 size-4 shrink-0 text-primary" />
-          <div className="space-y-1 text-sm">
-            <p className="font-medium">Datos para tu pago</p>
-            <PaymentInfoFields raw={paymentInfo()} />
-            <p className="text-xs text-muted-foreground/80">
-              Transfiere exactamente {formatBs(totalBs)}{" "}
-              (tasa {typedShow.tasa} Bs/USD).
-            </p>
-            <p className="text-xs text-muted-foreground/80">
-              Realiza el pago e indica la referencia abajo. El admin confirmará
-              tu entrada manualmente.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-border bg-card p-5">
-        <CheckoutForm showId={typedShow.id} quantity={qty} />
-      </div>
+      <CheckoutForm
+        showId={typedShow.id}
+        quantity={qty}
+        totalUsdLabel={formatMoney(total)}
+        totalBsLabel={formatBs(totalBs)}
+        tasaLabel={formatTasa(typedShow.tasa)}
+        pagoMovilInfo={paymentInfo()}
+        binanceInfo={binanceInfo()}
+      />
     </div>
   );
 }

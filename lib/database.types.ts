@@ -12,6 +12,7 @@ export type OrderStatus =
   | "cancelled";
 export type PaymentMethod =
   | "pago_movil"
+  | "binance"
   | "zelle"
   | "transferencia"
   | "efectivo";
@@ -24,6 +25,7 @@ export type Show = {
   date: string;
   comedians: string[];
   poster_url: string | null;
+  banner_url: string | null;
   grid_rows: number;
   grid_cols: number;
   base_price: number;
@@ -66,6 +68,7 @@ export type Order = {
   customer_email: string;
   customer_phone: string;
   cedula: string | null;
+  binance_email: string | null;
   seat_ids: string[];
 
   // Currency snapshot copied from the show at creation time.
@@ -149,7 +152,7 @@ export type Database = {
           p_banco_emisor: string;
           p_payment_ref: string;
           p_cedula: string | null;
-          p_monto_reportado: number;
+          p_monto_reportado: number | null;
           p_fecha_pago: string;
           p_receipt_path?: string | null;
         };

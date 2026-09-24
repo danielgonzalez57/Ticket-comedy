@@ -3,27 +3,32 @@ import type { PaymentMethod } from "@/lib/database.types";
 export const HOLD_MINUTES = 20;
 export const MAX_SEATS_PER_ORDER = 4;
 
-export const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
-  { value: "pago_movil", label: "Pago Móvil" },
-  { value: "zelle", label: "Zelle" },
-  { value: "transferencia", label: "Transferencia" },
-  { value: "efectivo", label: "Efectivo" },
-];
+// Labels for every method an order can carry — including ones no
+// longer offered at checkout, so older orders still render.
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  pago_movil: "Pago Móvil",
+  binance: "Binance",
+  zelle: "Zelle",
+  transferencia: "Transferencia",
+  efectivo: "Efectivo",
+};
 
-export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> =
-  Object.fromEntries(PAYMENT_METHODS.map((m) => [m.value, m.label])) as Record<
-    PaymentMethod,
-    string
-  >;
+// Methods a customer can pick at checkout.
+export const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = (
+  ["pago_movil", "binance"] as const
+).map((value) => ({ value, label: PAYMENT_METHOD_LABELS[value] }));
 
-// Methods reconciled by hand against a bank statement — these are the
+// Methods reconciled by hand against a statement — these are the
 // only ones that go through the pending -> reported step (report a
-// reference, amount, date) before an admin can verify them. Single
-// source of truth for this in the app layer; the DB encodes the same
-// set independently inside verify_payment_atomic (MUST_REPORT_FIRST).
+// reference, date and, for bank methods, amount) before an admin can
+// verify them. Single source of truth for this in the app layer; the
+// DB encodes the bank ones independently inside verify_payment_atomic
+// (MUST_REPORT_FIRST). Binance isn't in that DB list, but checkout
+// reports the payment together with the order (see createOrder).
 export const BANK_RECONCILED_METHODS: PaymentMethod[] = [
   "pago_movil",
   "transferencia",
+  "binance",
 ];
 
 export const SHOW_STATUS_LABELS: Record<string, string> = {
@@ -70,6 +75,14 @@ export function paymentInfo(): string {
   return (
     process.env.NEXT_PUBLIC_PAYMENT_INFO ||
     "Configura NEXT_PUBLIC_PAYMENT_INFO con tus datos de pago."
+  );
+}
+
+// Same "Label: value | Label: value" convention as paymentInfo().
+export function binanceInfo(): string {
+  return (
+    process.env.NEXT_PUBLIC_BINANCE_INFO ||
+    "Configura NEXT_PUBLIC_BINANCE_INFO con tus datos de Binance."
   );
 }
 

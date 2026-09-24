@@ -3,17 +3,22 @@
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { HOLD_MINUTES, MAX_SEATS_PER_ORDER } from "@/lib/constants";
+import {
+  HOLD_MINUTES,
+  MAX_SEATS_PER_ORDER,
+  PAYMENT_METHODS,
+} from "@/lib/constants";
 import type { PaymentMethod } from "@/lib/database.types";
+import {
+  normalizeCedula,
+  readPaymentFields,
+  validatePaymentReport,
+} from "@/lib/payment-report";
+import { reportPayment } from "@/app/(public)/orders/[id]/actions";
 
 export type CheckoutState = { error: string | null };
 
-const VALID_METHODS: PaymentMethod[] = [
-  "pago_movil",
-  "zelle",
-  "transferencia",
-  "efectivo",
-];
+const VALID_METHODS: PaymentMethod[] = PAYMENT_METHODS.map((m) => m.value);
 
 const ERROR_MESSAGES: Record<string, string> = {
   NO_SEATS: "Elige al menos una entrada.",
@@ -23,12 +28,14 @@ const ERROR_MESSAGES: Record<string, string> = {
     "Ya no quedan suficientes entradas disponibles. Elige menos o vuelve a la cartelera.",
 };
 
-// Step 1 of 2 (Fase 3): only reserves the entradas — no payment
-// reference required here. Step 2 (reportPayment, on /orders/[id])
-// is where banco/referencia/monto/fecha/comprobante get collected,
-// once the customer has actually paid. See
-// supabase/migrations/0005_order_lifecycle.sql for why creating an
-// order and reporting a payment are separate RPCs.
+// Reserves the entradas AND reports the payment in one submit: the
+// customer pays first (the checkout page shows where), then fills in
+// the reference/date (+ bank/Bs amount for Pago Móvil). Everything is
+// validated before any seat is held, so no order reaches the admin
+// without a reference. The DB still keeps these as two RPCs (see
+// supabase/migrations/0005_order_lifecycle.sql); if the report step
+// fails after the seats were held, the customer lands on
+// /orders/[id], where ReportPaymentForm lets them retry.
 //
 // Seats are no longer picked by the customer — create_pending_order_by_qty
 // (migration 0014) assigns the next available ones itself, in arrival
@@ -70,6 +77,12 @@ export async function createOrder(
   if (!VALID_METHODS.includes(method)) {
     return { error: "Elige un método de pago." };
   }
+  const payment = readPaymentFields(formData);
+  if (!payment.cedula || !normalizeCedula(payment.cedula)) {
+    return { error: "Ingresa una cédula válida (ej: V-12345678)." };
+  }
+  const checked = validatePaymentReport(method, payment);
+  if ("error" in checked) return { error: checked.error };
 
   const admin = createAdminClient();
   const { data: order, error } = await admin.rpc("create_pending_order_by_qty", {
@@ -93,5 +106,8 @@ export async function createOrder(
     };
   }
 
-  redirect(`/orders/${order.id}`);
+  const reported = await reportPayment(order.id, { email, ...payment });
+  redirect(
+    reported.ok ? `/orders/${order.id}` : `/orders/${order.id}?reporte=fallido`,
+  );
 }

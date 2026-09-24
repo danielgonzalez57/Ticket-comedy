@@ -23,10 +23,14 @@ export function OrderActions({
   orderId,
   status,
   note,
+  awaitingReport = false,
 }: {
   orderId: string;
   status: OrderStatus;
   note: string | null;
+  // Pending order whose method needs a reported reference first —
+  // confirming it would only fail (MUST_REPORT_FIRST), so don't offer it.
+  awaitingReport?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -118,8 +122,8 @@ export function OrderActions({
   return (
     <div className="space-y-4">
       {actionable && (
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={confirm} disabled={pending}>
+        <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+          <Button onClick={confirm} disabled={pending || awaitingReport}>
             <CheckCircle2 className="size-4" />
             Confirmar pago
           </Button>
@@ -139,6 +143,13 @@ export function OrderActions({
             Cancelar orden
           </Button>
         </div>
+      )}
+
+      {actionable && awaitingReport && (
+        <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+          El cliente todavía no reportó la referencia de su pago. Podrás
+          confirmarla cuando la reporte, o cancelarla si no va a pagar.
+        </p>
       )}
 
       {seatsLost && (

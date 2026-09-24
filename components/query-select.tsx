@@ -39,7 +39,7 @@ export function QuerySelect({
 
   return (
     <Select items={items} value={current} onValueChange={update}>
-      <SelectTrigger className={className ?? "w-48"}>
+      <SelectTrigger className={className ?? "w-full sm:w-48"}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>

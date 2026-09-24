@@ -4,8 +4,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { generateSeats } from "@/lib/seats";
-import { uploadPoster as uploadPosterFile } from "@/lib/storage";
+import {
+  MAX_CAPACITY,
+  MIN_CAPACITY,
+  generateSeats,
+  gridForCapacity,
+} from "@/lib/seats";
+import { deletePoster, uploadPoster } from "@/lib/storage";
+import { parseDecimal } from "@/lib/format";
 import type { SeatStatus, ShowStatus } from "@/lib/database.types";
 
 function parseComedians(raw: string): string[] {
@@ -26,9 +32,33 @@ function translateShowError(message: string): string {
   return message;
 }
 
-async function uploadPoster(file: File | null): Promise<string | null> {
-  if (!file || file.size === 0) return null;
-  return uploadPosterFile(createAdminClient(), file);
+// Uploads the card poster ("poster") and detail banner ("banner")
+// picked in the show form; either is null when no new file was chosen.
+// Both uploads settle before returning, so a failure in one can clean
+// up the other instead of leaving an orphan file in storage.
+async function uploadShowImages(
+  formData: FormData,
+): Promise<{ posterUrl: string | null; bannerUrl: string | null }> {
+  const admin = createAdminClient();
+  const pick = (key: string) => {
+    const f = formData.get(key);
+    return f instanceof File && f.size > 0 ? f : null;
+  };
+  const poster = pick("poster");
+  const banner = pick("banner");
+  const [posterRes, bannerRes] = await Promise.allSettled([
+    poster ? uploadPoster(admin, poster, "el cartel") : null,
+    banner ? uploadPoster(admin, banner, "el banner") : null,
+  ]);
+  if (posterRes.status === "rejected" || bannerRes.status === "rejected") {
+    await Promise.all([
+      posterRes.status === "fulfilled" && deletePoster(admin, posterRes.value),
+      bannerRes.status === "fulfilled" && deletePoster(admin, bannerRes.value),
+    ]);
+    const failed = posterRes.status === "rejected" ? posterRes : bannerRes;
+    throw (failed as PromiseRejectedResult).reason;
+  }
+  return { posterUrl: posterRes.value, bannerUrl: bannerRes.value };
 }
 
 type ShowFields = {
@@ -39,7 +69,6 @@ type ShowFields = {
   comedians: string[];
   base_price: number;
   tasa: number;
-  status: ShowStatus;
 };
 
 function readShowFields(formData: FormData): ShowFields {
@@ -47,8 +76,12 @@ function readShowFields(formData: FormData): ShowFields {
   const venue = String(formData.get("venue") ?? "").trim();
   const dateRaw = String(formData.get("date") ?? "").trim();
   const basePrice = Number(formData.get("base_price"));
-  const tasa = Number(formData.get("tasa"));
-  const status = String(formData.get("status") ?? "draft") as ShowStatus;
+  // Admins type the rate with a decimal comma ("840,67"); rounded to
+  // the 4 decimals shows.tasa stores so the "tasa changed" check below
+  // compares like with like.
+  const tasa =
+    Math.round(parseDecimal(String(formData.get("tasa") ?? "")) * 10_000) /
+    10_000;
 
   if (!name) throw new Error("El nombre es obligatorio.");
   if (!venue) throw new Error("El venue es obligatorio.");
@@ -68,9 +101,6 @@ function readShowFields(formData: FormData): ShowFields {
     comedians: parseComedians(String(formData.get("comedians") ?? "")),
     base_price: basePrice,
     tasa,
-    status: ["draft", "published", "finished"].includes(status)
-      ? status
-      : "draft",
   };
 }
 
@@ -96,17 +126,40 @@ export async function createShow(
   let newId: string;
   try {
     const fields = readShowFields(formData);
-    const rows = Math.max(1, Math.min(26, Number(formData.get("grid_rows")) || 5));
-    const cols = Math.max(1, Math.min(40, Number(formData.get("grid_cols")) || 10));
+    const capacity = Number(formData.get("capacity"));
+    if (
+      !Number.isInteger(capacity) ||
+      capacity < MIN_CAPACITY ||
+      capacity > MAX_CAPACITY
+    ) {
+      throw new Error(
+        `La cantidad de asientos debe ser un número entero entre ${MIN_CAPACITY} y ${MAX_CAPACITY}.`,
+      );
+    }
+    const { rows, cols } = gridForCapacity(capacity);
+    // Mirrors shows_no_placeholder_tasa_when_published — a new show is
+    // published straight away, so fail here with a readable message.
+    if (fields.tasa <= 1) {
+      throw new Error("La tasa debe ser mayor a 1 Bs por USD para publicar el show.");
+    }
 
-    const posterUrl = await uploadPoster(formData.get("poster") as File | null);
+    const { posterUrl, bannerUrl } = await uploadShowImages(formData);
+    const discardImages = () =>
+      Promise.all([
+        deletePoster(admin, posterUrl),
+        deletePoster(admin, bannerUrl),
+      ]);
 
     const { data: show, error } = await admin
       .from("shows")
       .insert({
         ...fields,
+        // Creating a show publishes it; unpublishing/finishing is done
+        // afterwards from ShowActions on the detail page.
+        status: "published",
         tasa_fecha: new Date().toISOString(),
         poster_url: posterUrl,
+        banner_url: bannerUrl,
         grid_rows: rows,
         grid_cols: cols,
       })
@@ -114,15 +167,17 @@ export async function createShow(
       .single();
 
     if (error || !show) {
+      await discardImages();
       return {
         error: error ? translateShowError(error.message) : "No se pudo crear el show.",
       };
     }
 
-    const seats = generateSeats(show.id, rows, cols, fields.base_price);
+    const seats = generateSeats(show.id, capacity, fields.base_price);
     const { error: seatErr } = await admin.from("seats").insert(seats);
     if (seatErr) {
       await admin.from("shows").delete().eq("id", show.id);
+      await discardImages();
       return { error: `No se pudieron generar los asientos: ${seatErr.message}` };
     }
     newId = show.id;
@@ -144,13 +199,12 @@ export async function updateShow(
 
   try {
     const fields = readShowFields(formData);
-    const posterUrl = await uploadPoster(formData.get("poster") as File | null);
 
     // tasa_fecha only moves when the rate itself actually changes —
     // editing venue/description shouldn't touch it.
     const { data: existing } = await admin
       .from("shows")
-      .select("tasa")
+      .select("tasa, poster_url, banner_url")
       .eq("id", showId)
       .single();
     const tasaChanged = existing && Number(existing.tasa) !== fields.tasa;
@@ -167,16 +221,33 @@ export async function updateShow(
       }
     }
 
+    // Uploaded only after the tasa confirmation round-trip above, so
+    // that round-trip doesn't upload the same images twice.
+    const { posterUrl, bannerUrl } = await uploadShowImages(formData);
+
     const { error } = await admin
       .from("shows")
       .update({
         ...fields,
         ...(tasaChanged ? { tasa_fecha: new Date().toISOString() } : {}),
         ...(posterUrl ? { poster_url: posterUrl } : {}),
+        ...(bannerUrl ? { banner_url: bannerUrl } : {}),
       })
       .eq("id", showId);
 
-    if (error) return { error: translateShowError(error.message) };
+    if (error) {
+      await Promise.all([
+        deletePoster(admin, posterUrl),
+        deletePoster(admin, bannerUrl),
+      ]);
+      return { error: translateShowError(error.message) };
+    }
+
+    // The replaced images are no longer referenced — free the space.
+    await Promise.all([
+      posterUrl && deletePoster(admin, existing?.poster_url),
+      bannerUrl && deletePoster(admin, existing?.banner_url),
+    ]);
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Error inesperado." };
   }
@@ -201,8 +272,17 @@ export async function setShowStatus(showId: string, status: ShowStatus) {
 export async function deleteShow(showId: string) {
   await requireUser();
   const admin = createAdminClient();
+  const { data: show } = await admin
+    .from("shows")
+    .select("poster_url, banner_url")
+    .eq("id", showId)
+    .maybeSingle();
   const { error } = await admin.from("shows").delete().eq("id", showId);
   if (error) throw new Error(error.message);
+  await Promise.all([
+    deletePoster(admin, show?.poster_url),
+    deletePoster(admin, show?.banner_url),
+  ]);
   revalidatePath("/admin/shows");
   redirect("/admin/shows");
 }

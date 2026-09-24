@@ -9,6 +9,7 @@ import { ShowActions } from "@/components/admin/show-actions";
 import { ShowStatusBadge } from "@/components/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Seat, Show } from "@/lib/database.types";
+import { formatTasa } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +70,7 @@ export default async function EditShowPage({
         <div className="flex items-center gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
           <AlertTriangle className="size-5 shrink-0" />
           <p>
-            Este show tiene una tasa placeholder ({typedShow.tasa} Bs/USD) de la
+            Este show tiene una tasa placeholder ({formatTasa(typedShow.tasa)} Bs/USD) de la
             migración inicial, no una tasa real. No se puede publicar hasta que
             la corrijas abajo — la base de datos lo rechaza igual si lo intentas.
           </p>
@@ -87,6 +88,7 @@ export default async function EditShowPage({
           <ShowForm
             action={updateShow.bind(null, typedShow.id)}
             show={typedShow}
+            seatCount={seatList.length}
             submitLabel="Guardar cambios"
           />
         </TabsContent>

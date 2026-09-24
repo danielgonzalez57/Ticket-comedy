@@ -2,9 +2,10 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
+import { QuerySelect } from "@/components/query-select";
 
-const fieldClass =
-  "h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50";
+const dateClass =
+  "h-9 min-w-0 flex-1 rounded-lg border border-input bg-card px-3 text-sm sm:flex-none text-foreground shadow-xs outline-none transition-colors hover:border-foreground/25 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:border-foreground/20 dark:hover:bg-input/50";
 
 export function ShowFilters({
   comedians,
@@ -33,46 +34,31 @@ export function ShowFilters({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <select
-        value={comediante}
-        onChange={(e) => update("comediante", e.target.value)}
-        className={fieldClass}
-        aria-label="Filtrar por comediante"
-      >
-        <option value="">Comediante</option>
-        {comedians.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
-
-      <select
-        value={venue}
-        onChange={(e) => update("venue", e.target.value)}
-        className={fieldClass}
-        aria-label="Filtrar por lugar"
-      >
-        <option value="">Lugar</option>
-        {venues.map((v) => (
-          <option key={v} value={v}>
-            {v}
-          </option>
-        ))}
-      </select>
+      <QuerySelect
+        param="comediante"
+        placeholder="Todos los comediantes"
+        options={comedians.map((c) => ({ value: c, label: c }))}
+        className="w-full sm:w-52"
+      />
+      <QuerySelect
+        param="venue"
+        placeholder="Todos los lugares"
+        options={venues.map((v) => ({ value: v, label: v }))}
+        className="w-full sm:w-48"
+      />
 
       <input
         type="date"
         value={from}
         onChange={(e) => update("from", e.target.value)}
-        className={fieldClass}
+        className={dateClass}
         aria-label="Desde"
       />
       <input
         type="date"
         value={to}
         onChange={(e) => update("to", e.target.value)}
-        className={fieldClass}
+        className={dateClass}
         aria-label="Hasta"
       />
 

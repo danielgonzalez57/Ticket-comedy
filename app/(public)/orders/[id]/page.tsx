@@ -6,6 +6,7 @@ import { ReportPaymentForm } from "@/components/report-payment-form";
 import { PaymentInfoFields } from "@/components/payment-info-fields";
 import { formatDualMoney, formatDate } from "@/lib/format";
 import {
+  binanceInfo,
   paymentInfo,
   whatsappAdmin,
   PAYMENT_METHOD_LABELS,
@@ -20,10 +21,15 @@ const AWAITING_PAYMENT: OrderStatus[] = ["pending", "reported"];
 
 export default async function OrderPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ reporte?: string }>;
 }) {
   const { id } = await params;
+  // Set by createOrder when the seats were held but reporting the
+  // payment in the same submit failed.
+  const reportFailed = (await searchParams).reporte === "fallido";
   const detail = await getOrderDetail(id);
   if (!detail) notFound();
 
@@ -83,7 +89,13 @@ export default async function OrderPage({
         <>
           <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm">
             <p className="font-medium">Completa tu pago</p>
-            <PaymentInfoFields raw={paymentInfo()} />
+            <PaymentInfoFields
+              raw={
+                order.payment_method === "binance"
+                  ? binanceInfo()
+                  : paymentInfo()
+              }
+            />
             {order.payment_ref && (
               <p className="mt-2 text-xs text-muted-foreground">
                 Referencia registrada:{" "}
@@ -95,7 +107,19 @@ export default async function OrderPage({
           {order.status === "pending" &&
           order.payment_method &&
           BANK_RECONCILED_METHODS.includes(order.payment_method) ? (
-            <ReportPaymentForm orderId={order.id} />
+            <>
+              {reportFailed && (
+                <p className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-400">
+                  Tus entradas quedaron apartadas, pero no pudimos registrar
+                  los datos de tu pago. Complétalos abajo para que el admin
+                  pueda confirmarlo.
+                </p>
+              )}
+              <ReportPaymentForm
+                orderId={order.id}
+                method={order.payment_method}
+              />
+            </>
           ) : (
             contactUrl && (
               <a

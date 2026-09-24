@@ -3,23 +3,21 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { uploadReceipt } from "@/lib/storage";
+import {
+  normalizeCedula,
+  readPaymentFields,
+  validatePaymentReport,
+  type PaymentReportInput,
+} from "@/lib/payment-report";
 
 export type ReportPaymentResult = { ok: boolean; error?: string };
 
-export type ReportPaymentInput = {
-  email: string;
-  banco: string;
-  referencia: string;
-  cedula?: string | null;
-  monto: number;
-  fecha: string;
-  comprobante?: File | null;
-};
+export type ReportPaymentInput = PaymentReportInput & { email: string };
 
-// Reports a payment for a pending order (pending -> reported) — step
-// 2 of the two-step checkout (see ReportPaymentForm / reportPaymentAction
-// below for the actual <form> wiring).
+// Reports a payment for a pending order (pending -> reported). Called
+// by createOrder right after reserving (checkout collects the payment
+// data up front) and by ReportPaymentForm on /orders/[id] as a retry
+// if that first report didn't go through.
 //
 // Rate limited by IP (a script hammering this endpoint) AND by order
 // (repeated retries against one order, e.g. probing references) —
@@ -48,47 +46,44 @@ export async function reportPayment(
   }
 
   const email = input.email.trim();
-  const banco = input.banco.trim();
-  const referencia = input.referencia.trim();
   if (!/^\S+@\S+\.\S+$/.test(email)) {
     return { ok: false, error: "Ingresa el correo con el que reservaste." };
-  }
-  if (!banco) return { ok: false, error: "Selecciona el banco emisor." };
-  if (!/^[0-9]{6,8}$/.test(referencia)) {
-    return { ok: false, error: "Ingresa los últimos 6 a 8 dígitos de la referencia." };
-  }
-  if (!Number.isFinite(input.monto) || input.monto <= 0) {
-    return { ok: false, error: "Ingresa el monto en bolívares que transferiste." };
-  }
-  if (!input.fecha || Number.isNaN(Date.parse(input.fecha))) {
-    return { ok: false, error: "Ingresa la fecha del pago." };
   }
 
   const admin = createAdminClient();
 
-  let receiptPath: string | null = null;
-  if (input.comprobante && input.comprobante.size > 0) {
-    try {
-      receiptPath = await uploadReceipt(admin, orderId, input.comprobante);
-    } catch (e) {
-      return { ok: false, error: e instanceof Error ? e.message : "No se pudo subir el comprobante." };
-    }
+  // Which fields are required depends on the order's payment method —
+  // read it from the order itself, never from the client.
+  const { data: order } = await admin
+    .from("orders")
+    .select("payment_method")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (!order) return { ok: false, error: "No se encontró la orden." };
+
+  const checked = validatePaymentReport(order.payment_method, input);
+  if ("error" in checked) return { ok: false, error: checked.error };
+  const report = checked.value;
+
+  const cedulaRaw = input.cedula?.trim() || null;
+  const cedula = cedulaRaw ? normalizeCedula(cedulaRaw) : null;
+  if (cedulaRaw && !cedula) {
+    return { ok: false, error: "La cédula no es válida (ej: V-12345678)." };
   }
 
   const { error } = await admin.rpc("report_payment", {
     p_order_id: orderId,
     p_customer_email: email,
-    p_banco_emisor: banco,
-    p_payment_ref: referencia,
-    p_cedula: input.cedula?.trim() || null,
-    p_monto_reportado: input.monto,
-    p_fecha_pago: input.fecha,
-    p_receipt_path: receiptPath,
+    p_banco_emisor: report.banco,
+    p_payment_ref: report.referencia,
+    p_cedula: cedula,
+    p_monto_reportado: report.monto,
+    p_fecha_pago: report.fecha,
   });
 
   if (error) {
     if (error.code === "23514") {
-      return { ok: false, error: "La referencia debe tener entre 6 y 8 dígitos." };
+      return { ok: false, error: "El formato de la referencia no es válido." };
     }
     if (error.message.includes("OWNER_MISMATCH")) {
       return { ok: false, error: "El correo no coincide con el de esta orden." };
@@ -100,6 +95,15 @@ export async function reportPayment(
       return { ok: false, error: "No se encontró la orden." };
     }
     return { ok: false, error: "No se pudo registrar el pago. Intenta de nuevo." };
+  }
+
+  // Not part of the report_payment RPC — best effort: the payment is
+  // already reported, this is only a hint for finding it in Binance.
+  if (report.binanceEmail) {
+    await admin
+      .from("orders")
+      .update({ binance_email: report.binanceEmail })
+      .eq("id", orderId);
   }
 
   revalidatePath(`/orders/${orderId}`);
@@ -115,14 +119,8 @@ export async function reportPaymentAction(
   _prev: ReportPaymentResult,
   formData: FormData,
 ): Promise<ReportPaymentResult> {
-  const comprobante = formData.get("comprobante");
   return reportPayment(orderId, {
     email: String(formData.get("verify_email") ?? ""),
-    banco: String(formData.get("banco_emisor") ?? ""),
-    referencia: String(formData.get("payment_ref") ?? ""),
-    cedula: String(formData.get("cedula") ?? "").trim() || null,
-    monto: Number(formData.get("monto_reportado")),
-    fecha: String(formData.get("fecha_pago") ?? ""),
-    comprobante: comprobante instanceof File && comprobante.size > 0 ? comprobante : null,
+    ...readPaymentFields(formData),
   });
 }

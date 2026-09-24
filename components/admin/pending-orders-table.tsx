@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { OrderStatusBadge } from "@/components/status-badge";
@@ -55,18 +56,18 @@ export function PendingOrdersTable({ orders }: { orders: PendingOrderRow[] }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <div className="relative">
+        <div className="relative w-full sm:w-auto">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar cliente, referencia..."
-            className="h-9 w-56 rounded-lg border border-input bg-transparent pl-8 pr-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+            className="h-9 w-full rounded-lg border border-input bg-card pl-8 sm:w-56 pr-3 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground hover:border-foreground/25 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:border-foreground/20"
           />
         </div>
         <Select items={STATUS_ITEMS} value={status} onValueChange={(v) => setStatus(v ?? ALL)}>
-          <SelectTrigger className="w-44">
+          <SelectTrigger className="w-full sm:w-44">
             <SelectValue placeholder="Todos los estados" />
           </SelectTrigger>
           <SelectContent>
@@ -78,7 +79,7 @@ export function PendingOrdersTable({ orders }: { orders: PendingOrderRow[] }) {
           </SelectContent>
         </Select>
         <Select items={showItems} value={show} onValueChange={(v) => setShow(v ?? ALL)}>
-          <SelectTrigger className="w-52">
+          <SelectTrigger className="w-full sm:w-52">
             <SelectValue placeholder="Todos los shows" />
           </SelectTrigger>
           <SelectContent>
@@ -96,7 +97,41 @@ export function PendingOrdersTable({ orders }: { orders: PendingOrderRow[] }) {
           No hay órdenes por atender.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-border">
+        <>
+        {/* Phones: one tappable card per order instead of a 6-column table. */}
+        <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border md:hidden">
+          {filtered.map((o) => (
+            <li key={o.id}>
+              <Link
+                href={`/admin/orders/${o.id}`}
+                className="block space-y-2 p-4 transition-colors active:bg-secondary/60"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{o.customerName}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {o.showName}
+                    </p>
+                  </div>
+                  <OrderStatusBadge status={o.status} />
+                </div>
+                <div className="flex items-end justify-between gap-3 text-xs text-muted-foreground">
+                  <span className="font-mono">
+                    #{orderCode(o.id)}
+                    {o.paymentRef && <> · ref {o.paymentRef}</>}
+                  </span>
+                  <span className="shrink-0 text-right">
+                    <span className="block text-sm font-medium text-foreground tabular-nums">
+                      {formatDualMoney(o.totalUsd, o.montoBs)}
+                    </span>
+                    {formatShortDate(o.createdAt)}
+                  </span>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden overflow-x-auto rounded-xl border border-border md:block">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted-foreground">
@@ -141,6 +176,7 @@ export function PendingOrdersTable({ orders }: { orders: PendingOrderRow[] }) {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

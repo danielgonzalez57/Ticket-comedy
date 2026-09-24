@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getSalesReport } from "@/lib/queries";
 import { OrderStatusBadge } from "@/components/status-badge";
-import { QuerySelect } from "@/components/admin/query-select";
+import { QuerySelect } from "@/components/query-select";
 import { QuerySearch } from "@/components/admin/query-search";
 import { HorizontalBarChart } from "@/components/admin/horizontal-bar-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,7 +83,7 @@ export default async function ReportePage({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className={`text-xl font-semibold tabular-nums ${s.accent ?? ""}`}>
+              <p className={`break-words text-lg font-semibold tabular-nums sm:text-xl ${s.accent ?? ""}`}>
                 {s.value}
               </p>
             </CardContent>
