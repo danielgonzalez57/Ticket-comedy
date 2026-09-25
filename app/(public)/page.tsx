@@ -26,7 +26,7 @@ const ORGANIZATION_JSON_LD = {
     { "@type": "Person", name: "María Laura Pinto" },
   ],
   url: siteUrl(),
-  logo: `${siteUrl()}/logo.png`,
+  logo: `${siteUrl()}/share-icon.png`,
 };
 
 const FEATURED_COUNT = 6;

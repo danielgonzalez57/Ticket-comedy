@@ -42,7 +42,9 @@ export const metadata: Metadata = {
     siteName: "Pinto & Aparte",
     title: "Pinto y Aparte — Stand-up comedy en Valencia",
     description: SITE_DESCRIPTION,
-    images: [{ url: "/logo.png", alt: "Pinto & Aparte" }],
+    images: [
+      { url: "/share-icon.png", width: 512, height: 512, alt: "Pinto & Aparte" },
+    ],
   },
 };
 
