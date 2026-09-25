@@ -120,3 +120,7 @@ export function brandEmailLogoUrl(): string {
     ? `${supabaseUrl}/storage/v1/object/public/posters/brand/logo-caras-email.png?v=${BRAND_EMAIL_LOGO_VERSION}`
     : "";
 }
+
+// Used as the meta / Open Graph description and in the home JSON-LD.
+export const SITE_DESCRIPTION =
+  "¿Buscabas un show de comedia de dos hermanos en Valencia? Una búsqueda bastante específica, la verdad. Pero lo encontraste: un stand-up presentado por Ernesto Pinto y María Laura Pinto que te hará reír durante una hora de show. Ya lo googleamos y sí, es físicamente posible.";

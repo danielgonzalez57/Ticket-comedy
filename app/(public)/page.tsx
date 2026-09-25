@@ -5,7 +5,7 @@ import { ShowCard } from "@/components/show-card";
 import { TypewriterHero } from "@/components/typewriter-hero";
 import type { ShowWithBs } from "@/lib/database.types";
 import type { Metadata } from "next";
-import { siteUrl } from "@/lib/constants";
+import { SITE_DESCRIPTION, siteUrl } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +20,11 @@ const ORGANIZATION_JSON_LD = {
   "@type": "PerformingGroup",
   name: "Pinto & Aparte",
   alternateName: ["Pinto y Aparte", "Pinto Aparte"],
-  description: "Show de stand-up comedy de dos hermanos en Venezuela.",
+  description: SITE_DESCRIPTION,
+  member: [
+    { "@type": "Person", name: "Ernesto Pinto" },
+    { "@type": "Person", name: "María Laura Pinto" },
+  ],
   url: siteUrl(),
   logo: `${siteUrl()}/logo.png`,
 };
