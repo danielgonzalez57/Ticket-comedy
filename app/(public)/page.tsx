@@ -58,12 +58,11 @@ export default async function HomePage() {
         <p className="max-w-xl text-base leading-relaxed text-pretty text-muted-foreground sm:text-lg">
           <span className="block">
             <span className="font-semibold text-foreground">2 hermanos, 2 sueños:</span>{" "}
-            hacerte reír con su show de stand-up comedy…
+            hacerte reír con su show de stand-up comedy… El otro es ganar
           </span>
           <span className="mt-1 block">
-            El otro es ganar{" "}
             <span className="whitespace-nowrap font-semibold text-foreground">$1.000.000.000</span>,
-            pero vamos por partes.
+            pero vamos por parte.
           </span>
         </p>
         <div className="flex flex-col gap-3 pt-1 sm:flex-row">
