@@ -30,8 +30,8 @@ export default async function HomePage() {
         </p>
         <TypewriterHero />
         <p className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Escoge tu show, aparta tus entradas y paga con Pago Móvil o Binance.
-          Tu entrada con QR te llega al correo — sin vueltas ni excusas.
+          Dos hermanos, dos sueños: hacerte reír con su show de stand-up
+          comedy… El otro es ganar $1.000.000.000, pero vamos por partes.
         </p>
         <div className="flex flex-col gap-3 pt-1 sm:flex-row">
           <a
