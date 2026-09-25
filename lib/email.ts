@@ -127,11 +127,14 @@ export async function sendTicketEmail({
         <tr>
           <td align="center" style="padding-bottom:26px;font-family:${FONT};">
             <p style="margin:0 0 8px;font-size:19px;line-height:1.4;font-weight:700;color:${CREAM};">
-              ¡Epa! Somos María y Ernesto 👋
+              ¡Sorpresa!!! No te estafamos.
             </p>
-            <p style="margin:0;font-size:15px;line-height:1.55;color:#b8b3a4;max-width:420px;">
-              Y no, no te estafamos jaja. Esta es tu entrada de verdad, con su QR y todo.
-              Guárdala y nos vemos en el show 🎤
+            <p style="margin:0 0 12px;font-size:15px;line-height:1.55;color:#b8b3a4;max-width:420px;">
+              Ya que superamos juntos este ejercicio de confianza, estamos listos para verte el día del show.
+              Vete con tu mejor pinta y disfruta de Pinto y Aparte.
+            </p>
+            <p style="margin:0;font-size:14px;line-height:1.55;font-style:italic;color:#b8b3a4;">
+              Con amor: Ernesto, María Laura y Maluma baby
             </p>
           </td>
         </tr>

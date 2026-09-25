@@ -5,7 +5,8 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 const PHRASES = [
   "Marico el que no compre entradas",
   "¿Se te fue la luz? Ven.",
-  "Ven y gasta esa plata.",
+  "Cobramos a BCV, es decir GRATIS",
+  "Aprovecha que es quincena.",
   "Ven y ríete un rato.",
   "Trae a tu ex. No juzgamos.",
 ];

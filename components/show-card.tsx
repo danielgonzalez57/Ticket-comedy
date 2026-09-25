@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Ticket } from "lucide-react";
+import { ArrowUpRight, Beer, Ticket } from "lucide-react";
 import type { ShowWithBs } from "@/lib/database.types";
 import { formatMoney, formatBs } from "@/lib/format";
 
@@ -63,6 +63,10 @@ export function ShowCard({ show }: { show: ShowWithBs }) {
             {show.comedians.join(" · ")}
           </p>
         )}
+        <p className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-highlight">
+          <Beer className="size-4 shrink-0" aria-hidden />
+          La entrada incluye una birra
+        </p>
       </div>
 
       {/* Ticket-stub footer */}
