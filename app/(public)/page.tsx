@@ -57,11 +57,11 @@ export default async function HomePage() {
         <TypewriterHero />
         <p className="max-w-xl text-base leading-relaxed text-pretty text-muted-foreground sm:text-lg">
           <span className="block">
-            <span className="font-semibold text-foreground">2 hermanos, 2 sueños:</span>{" "}
+            2 hermanos, 2 sueños:
             hacerte reír con su show de stand-up comedy… El otro es ganar
           </span>
           <span className="mt-1 block">
-            <span className="whitespace-nowrap font-semibold text-foreground">$1.000.000.000</span>,
+            <span className="whitespace-nowrap">$1.000.000.000,</span>
             pero vamos por parte.
           </span>
         </p>
