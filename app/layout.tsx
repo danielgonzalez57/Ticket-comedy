@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { siteUrl } from "@/lib/constants";
 import "./globals.css";
 
 // Fonts are self-hosted (latin subset, variable woff2 from Google Fonts)
@@ -30,9 +31,22 @@ const display = localFont({
   display: "swap",
 });
 
+const DESCRIPTION =
+  "Pinto & Aparte (Pinto y Aparte): shows de stand-up comedy en Venezuela. Compra tus entradas con Pago Móvil o Binance.";
+
 export const metadata: Metadata = {
-  title: "Pinto & Aparte",
-  description: "Boletos para shows de stand-up comedy en Venezuela.",
+  metadataBase: new URL(siteUrl()),
+  title: "Pinto & Aparte — Stand-up comedy",
+  description: DESCRIPTION,
+  applicationName: "Pinto & Aparte",
+  openGraph: {
+    type: "website",
+    locale: "es_VE",
+    siteName: "Pinto & Aparte",
+    title: "Pinto & Aparte — Stand-up comedy",
+    description: DESCRIPTION,
+    images: [{ url: "/logo.png", alt: "Pinto & Aparte" }],
+  },
 };
 
 export default function RootLayout({

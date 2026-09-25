@@ -4,8 +4,26 @@ import { createClient } from "@/lib/supabase/server";
 import { ShowCard } from "@/components/show-card";
 import { TypewriterHero } from "@/components/typewriter-hero";
 import type { ShowWithBs } from "@/lib/database.types";
+import type { Metadata } from "next";
+import { siteUrl } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
+// Tells Google who the site belongs to, including the "Pinto y Aparte"
+// spelling people type instead of the ampersand.
+const ORGANIZATION_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "PerformingGroup",
+  name: "Pinto & Aparte",
+  alternateName: ["Pinto y Aparte", "Pinto Aparte"],
+  description: "Show de stand-up comedy de dos hermanos en Venezuela.",
+  url: siteUrl(),
+  logo: `${siteUrl()}/logo.png`,
+};
 
 const FEATURED_COUNT = 6;
 
@@ -22,6 +40,10 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_JSON_LD) }}
+      />
       {/* Hero */}
       <section className="tc-rise space-y-5 pt-2 sm:pt-8">
         <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
