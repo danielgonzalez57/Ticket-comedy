@@ -7,7 +7,6 @@ const PHRASES = [
   "¿Se te fue la luz? Ven.",
   "Cobramos a BCV, es decir GRATIS",
   "Aprovecha que es quincena.",
-  "Ven y ríete un rato.",
   "Trae a tu ex. No juzgamos.",
 ];
 
