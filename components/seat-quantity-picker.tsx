@@ -91,8 +91,11 @@ export function SeatQuantityPicker({
       <p className="text-sm text-muted-foreground">
         Las entradas se asignan por orden de llegada.
       </p>
-      <p className="flex items-center gap-1.5 text-xs text-muted-foreground/80">
-        <span className="size-1.5 shrink-0 rounded-full bg-emerald-500" />
+      <p className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-sm font-semibold text-emerald-500">
+        <span className="relative flex size-2 shrink-0">
+          <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+          <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+        </span>
         {buyersNow} {buyersNow === 1 ? "persona está comprando" : "personas están comprando"} ahora
       </p>
 
