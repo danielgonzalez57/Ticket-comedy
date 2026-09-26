@@ -175,7 +175,7 @@ export async function sendTicketEmail({
                     Muestra este código en la entrada
                   </p>
                   <img src="cid:qrcode" alt="QR de tu entrada" width="200" height="200" style="display:block;background:#ffffff;border-radius:14px;padding:12px;border:1px solid #eee4cc;">
-                  <a href="${ticketUrl(order.qr_token)}" style="display:inline-block;margin-top:18px;background:#1840a0;color:#ffffff;font-family:${FONT};font-size:14px;font-weight:600;text-decoration:none;padding:11px 22px;border-radius:999px;">
+                  <a href="${ticketUrl(order.qr_token)}" style="display:inline-block;margin-top:18px;background:${NARANJA};color:#ffffff;font-family:${FONT};font-size:14px;font-weight:600;text-decoration:none;padding:11px 22px;border-radius:999px;">
                     Ver entrada en línea
                   </a>
                 </td>
