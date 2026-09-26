@@ -75,9 +75,16 @@
   --success: #15924f;
   --success-foreground: #ffffff;
 
-  --border: rgba(0, 0, 0, 0.1);
-  --input: rgba(0, 0, 0, 0.14);
+  --border: rgba(20, 18, 12, 0.12);
+  --input: rgba(20, 18, 12, 0.16);
   --ring: rgba(24, 64, 160, 0.5);
+
+  /* Light mode's own atmosphere — warm naranja/cream washes, no azul.
+     The dark-mode blue glow only reads as "glow" against near-black;
+     against cream it just cools/greys the background out. */
+  --tc-atmosphere-1: rgba(240, 64, 0, 0.05);
+  --tc-atmosphere-2: rgba(24, 64, 160, 0.035);
+  --tc-atmosphere-3: rgba(240, 64, 0, 0.07);
 
   /* Readable "accent text" colour — same azul as primary, it's already
      high-contrast on the light background. */
@@ -141,6 +148,11 @@
   --tc-glow-warm: rgba(240, 64, 0, 0.4);
   --tc-glow-neutral: rgba(245, 245, 245, 0.25);
 
+  /* The signature neon-on-black wash — azul spotlight + naranja spark. */
+  --tc-atmosphere-1: rgba(59, 130, 246, 0.12);
+  --tc-atmosphere-2: rgba(59, 130, 246, 0.06);
+  --tc-atmosphere-3: rgba(240, 64, 0, 0.06);
+
   --seat-available: #2a2a2a;
   --seat-hold: #4a2410;
   --seat-sold: #1a1a1a;
@@ -194,21 +206,9 @@ html:not(.dark) .text-primary {
    give the flat black depth. */
 .tc-atmosphere {
   background:
-    radial-gradient(
-      70% 55% at 50% -8%,
-      rgba(59, 130, 246, 0.12),
-      transparent 60%
-    ),
-    radial-gradient(
-      45% 45% at 100% 0%,
-      rgba(59, 130, 246, 0.06),
-      transparent 55%
-    ),
-    radial-gradient(
-      50% 40% at 0% 100%,
-      rgba(240, 64, 0, 0.06),
-      transparent 60%
-    );
+    radial-gradient(70% 55% at 50% -8%, var(--tc-atmosphere-1), transparent 60%),
+    radial-gradient(45% 45% at 100% 0%, var(--tc-atmosphere-2), transparent 55%),
+    radial-gradient(50% 40% at 0% 100%, var(--tc-atmosphere-3), transparent 60%);
 }
 
 .tc-grain::after {
