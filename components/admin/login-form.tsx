@@ -87,7 +87,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
   const passwordInvalid = Boolean(passwordEmptyError) || serverFlags("password");
   const showServerError =
     state.error !== null &&
-    !(state.fields ?? []).every((f) => editedSinceError[f]);
+    !(state.fields && state.fields.length > 0 && state.fields.every((f) => editedSinceError[f]));
 
   const canSubmit = EMAIL_RE.test(email.trim()) && password !== "";
 
