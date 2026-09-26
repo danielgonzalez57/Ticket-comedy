@@ -78,7 +78,7 @@ function SignOutSubmitButton({ large }: { large: boolean }) {
       type="submit"
       disabled={pending}
       className={cn(
-        "flex w-full items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground disabled:pointer-events-none disabled:opacity-60",
+        "flex w-full items-center gap-3 rounded-lg px-3 text-sm text-highlight transition-colors hover:bg-secondary/60 disabled:pointer-events-none disabled:opacity-60",
         large ? "py-3 text-base" : "py-2",
       )}
     >
@@ -113,7 +113,7 @@ export function AdminSidebar({ userEmail }: { userEmail: string | null }) {
       </nav>
       <div className="space-y-2 border-t border-border p-3">
         {userEmail && (
-          <p className="truncate px-3 text-xs text-muted-foreground" title={userEmail}>
+          <p className="truncate px-3 text-xs text-highlight" title={userEmail}>
             {userEmail}
           </p>
         )}
@@ -158,7 +158,7 @@ export function AdminTopbar({ userEmail }: { userEmail: string | null }) {
               <div className="space-y-1 border-t border-border p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                 <div className="flex items-center justify-between gap-3 px-3 py-2">
                   {userEmail ? (
-                    <p className="truncate text-xs text-muted-foreground" title={userEmail}>
+                    <p className="truncate text-xs text-highlight" title={userEmail}>
                       {userEmail}
                     </p>
                   ) : (
