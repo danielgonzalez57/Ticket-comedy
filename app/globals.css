@@ -48,26 +48,30 @@
    brand from feeling clinical; azul is the dominant fill/CTA/text accent,
    naranja is used sparingly as a warm spark. */
 :root {
-  --background: #f7f7f1;
-  --foreground: #121210;
+  /* Warm parchment/ticket-stub cream — the same family already used in
+     the confirmation emails (#faf6ec stub on a deeper cream canvas),
+     ported here so light mode reads as an intentional palette instead
+     of "dark mode with the lights off". */
+  --background: #f2e8d3;
+  --foreground: #18140f;
 
-  --card: #ffffff;
-  --card-foreground: #121210;
+  --card: #fffaf0;
+  --card-foreground: #18140f;
 
-  --popover: #ffffff;
-  --popover-foreground: #121210;
+  --popover: #fffaf0;
+  --popover-foreground: #18140f;
 
   --primary: #1840a0;
   --primary-foreground: #ffffff;
 
-  --secondary: #eceae2;
-  --secondary-foreground: #1a1a18;
+  --secondary: #e8dbb9;
+  --secondary-foreground: #18140f;
 
-  --muted: #efeee7;
-  --muted-foreground: #6b6a61;
+  --muted: #ece0c4;
+  --muted-foreground: #7c7260;
 
-  --accent: #e9e7df;
-  --accent-foreground: #1a1a18;
+  --accent: #e6d7b3;
+  --accent-foreground: #18140f;
 
   --destructive: #d92d3a;
   --destructive-foreground: #ffffff;
@@ -75,8 +79,8 @@
   --success: #15924f;
   --success-foreground: #ffffff;
 
-  --border: rgba(20, 18, 12, 0.12);
-  --input: rgba(20, 18, 12, 0.16);
+  --border: rgba(30, 22, 10, 0.16);
+  --input: rgba(30, 22, 10, 0.2);
   --ring: rgba(24, 64, 160, 0.5);
 
   /* Light mode's own atmosphere — warm naranja/cream washes, no azul.
@@ -99,9 +103,9 @@
 
   --radius: 0.625rem;
 
-  --seat-available: #ddddd4;
-  --seat-hold: #f7d9c2;
-  --seat-sold: #e9e8e1;
+  --seat-available: #ddcfa8;
+  --seat-hold: #f3c896;
+  --seat-sold: #ece0c4;
 }
 
 /* DARK theme — the signature neon-on-black look, now lit by azul, with
