@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Ticket, LogOut } from "lucide-react";
-import { signOutCustomer } from "@/app/(public)/mis-entradas/actions";
+import { Ticket } from "lucide-react";
+import { CustomerSignOutButton } from "@/components/customer-sign-out-button";
 import { OrderStatusBadge } from "@/components/status-badge";
 import { formatDate, formatShortDate, formatDualMoney } from "@/lib/format";
 import { orderCode } from "@/lib/whatsapp";
@@ -31,21 +31,18 @@ export function MyTicketsList({
           <h1 className="text-xl font-semibold tracking-tight">Mis entradas</h1>
           <p className="mt-1 text-sm text-muted-foreground">{email}</p>
         </div>
-        <form action={signOutCustomer}>
-          <button
-            type="submit"
-            className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <LogOut className="size-3.5" />
-            Salir
-          </button>
-        </form>
+        <CustomerSignOutButton />
       </div>
 
       {orders.length === 0 && (
-        <p className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
-          Todavía no tienes órdenes con este correo.
-        </p>
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card p-8 text-center">
+          <div className="flex size-11 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+            <Ticket className="size-5" />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Todavía no tienes órdenes con este correo.
+          </p>
+        </div>
       )}
 
       {unredeemed.length > 0 && (
