@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Calendar, MapPin, ArrowLeft, Ticket, Mic2 } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, Ticket } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SeatQuantityPicker } from "@/components/seat-quantity-picker";
 import { effectiveStatus } from "@/lib/seats";
@@ -95,9 +95,8 @@ export default async function ShowDetailPage({
               {typedShow.comedians.map((c) => (
                 <span
                   key={c}
-                  className="flex items-center gap-1.5 rounded-full border border-highlight/30 bg-highlight/10 px-3.5 py-1.5 text-sm font-semibold text-highlight"
+                  className="rounded-full border border-accent-ink/30 bg-accent-ink/10 px-3.5 py-1.5 text-sm font-semibold text-accent-ink"
                 >
-                  <Mic2 className="size-3.5 shrink-0" aria-hidden />
                   {c}
                 </span>
               ))}
