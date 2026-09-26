@@ -244,11 +244,12 @@ html:not(.dark) .text-primary {
 }
 
 /* The logo art is white lettering with yellow accents, made for dark
-   backgrounds. On the light theme a soft shadow (no outline) lifts the
-   white off the cream; dark theme shows it untouched. */
+   backgrounds — invisible on a light one. Inverting it turns the white
+   lettering dark (readable on cream); the yellow accents invert too
+   (become a dark blue) as a side effect, but that's a fair trade for
+   actually being legible. Dark theme shows the original art untouched. */
 .tc-logo {
-  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.55))
-    drop-shadow(0 3px 8px rgba(0, 0, 0, 0.3));
+  filter: invert(1);
 }
 .dark .tc-logo {
   filter: none;
