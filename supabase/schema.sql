@@ -1107,20 +1107,29 @@ revoke execute on function purge_rate_limit_hits() from public, anon, authentica
 revoke execute on function check_rate_limit(text, int, int) from public, anon, authenticated;
 
 -- =============================================================
--- service_role privileges. Older Supabase projects grant service_role
--- blanket access to the public schema automatically at provisioning
--- time, so this was never needed. Projects created with "Automatically
--- expose new tables" off don't get that for free — BYPASSRLS skips
--- policies but not GRANT checks, and the revokes above strip the only
--- path (the PUBLIC pseudo-role) service_role otherwise had to these
--- functions. Without this, lib/supabase/admin.ts (createAdminClient)
--- gets a bare "permission denied" on every table and RPC call above,
--- which check_rate_limit's callers then quietly turn into "too many
--- attempts" (see lib/rate-limit.ts's fail-closed handling). Grant
--- explicitly rather than depend on whatever a given project happened
--- to provision with.
+-- Table privileges (all roles). Older Supabase projects — and any
+-- project created with "Automatically expose new tables" left ON —
+-- grant anon/authenticated/service_role blanket access to the public
+-- schema automatically at provisioning time, so none of this was ever
+-- needed by hand: every policy above was written assuming the GRANT
+-- layer is wide open and RLS is the only real gate (the standard
+-- Supabase model). A project created with that option OFF does not
+-- get any of it for free — BYPASSRLS skips policies but not GRANT
+-- checks, and the RPC revokes above strip the only path (the PUBLIC
+-- pseudo-role) service_role otherwise had to those functions. Without
+-- this block: anon/authenticated get a bare "permission denied for
+-- table shows" on the public site itself (shows_public is
+-- security_invoker, so it re-checks grants on the base table as the
+-- calling role), lib/supabase/admin.ts (createAdminClient) gets the
+-- same on every table/RPC call, and check_rate_limit's callers turn
+-- that into a confusing "too many attempts" (see
+-- lib/rate-limit.ts's fail-closed handling). Grant explicitly rather
+-- than depend on whatever a given project happened to provision with
+-- — RLS above still does the actual per-row enforcement.
 -- =============================================================
-grant usage on schema public to service_role;
+grant usage on schema public to anon, authenticated, service_role;
+grant select on shows, seats to anon;
+grant select, insert, update, delete on shows, seats, orders to authenticated;
 grant all on shows, seats, orders, admin_users, rate_limit_hits to service_role;
 grant select on shows_public, seats_public to service_role;
 grant execute on function create_pending_order(uuid, uuid[], text, text, text, text, int) to service_role;

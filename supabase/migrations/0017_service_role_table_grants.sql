@@ -1,19 +1,29 @@
 -- =============================================================
--- 0017 — Explicit service_role grants (tables + RPC functions).
+-- 0017 — Explicit table/RPC grants for anon, authenticated and
+-- service_role.
 --
--- Older Supabase projects grant service_role blanket access to the
--- public schema automatically at provisioning time, so this was never
--- needed. Projects created with "Automatically expose new tables" off
--- don't get that for free — BYPASSRLS skips policies but not GRANT
--- checks, and the RPC lockdown in migrations 0012/0013 (revoking
+-- Older Supabase projects — and any project created with
+-- "Automatically expose new tables" left ON — grant
+-- anon/authenticated/service_role blanket access to the public schema
+-- automatically at provisioning time, so none of this was ever needed
+-- by hand: every RLS policy in this schema was written assuming the
+-- GRANT layer is wide open and RLS is the only real gate (the
+-- standard Supabase model). A project created with that option OFF
+-- does not get any of it for free — BYPASSRLS skips policies but not
+-- GRANT checks, and the RPC lockdown in migrations 0012/0013 (revoking
 -- EXECUTE from the PUBLIC pseudo-role) strips the only path
--- service_role otherwise had to those functions on such a project.
--- Without this, lib/supabase/admin.ts (createAdminClient) gets a bare
--- "permission denied" on every table and RPC call below. Grant
--- explicitly rather than depend on whatever a given project happened
--- to provision with.
+-- service_role otherwise had to those functions. Without this:
+-- anon/authenticated get a bare "permission denied for table shows"
+-- on the public site itself (shows_public is security_invoker, so it
+-- re-checks grants on the base table as the calling role), and
+-- lib/supabase/admin.ts (createAdminClient) gets the same on every
+-- table/RPC call below. Grant explicitly rather than depend on
+-- whatever a given project happened to provision with — RLS still
+-- does the actual per-row enforcement.
 -- =============================================================
-grant usage on schema public to service_role;
+grant usage on schema public to anon, authenticated, service_role;
+grant select on shows, seats to anon;
+grant select, insert, update, delete on shows, seats, orders to authenticated;
 grant all on shows, seats, orders, admin_users, rate_limit_hits to service_role;
 grant select on shows_public, seats_public to service_role;
 grant execute on function create_pending_order(uuid, uuid[], text, text, text, text, int) to service_role;
