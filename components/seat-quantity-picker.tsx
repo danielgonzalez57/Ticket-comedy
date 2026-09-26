@@ -1,12 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus } from "lucide-react";
 import { MAX_SEATS_PER_ORDER } from "@/lib/constants";
 import { formatMoney, formatBs } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+
+// Small "people buying right now" signal — not real activity data (we
+// don't track concurrent viewers), just a stable-looking hint so the
+// public page doesn't expose the real sold/available count. Deterministic
+// per show + a 15-minute time bucket, so it doesn't flicker to a
+// different number on every reload — it just drifts slowly like a real
+// count would.
+function fakeBuyersNow(showId: string): number {
+  const bucket = Math.floor(Date.now() / (15 * 60 * 1000));
+  const input = `${showId}:${bucket}`;
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return 1 + (hash % 4); // 1–4
+}
 
 // Replaces the old interactive seat map: seats are no longer chosen,
 // they're assigned automatically in arrival order (see
@@ -28,6 +44,7 @@ export function SeatQuantityPicker({
   const [qty, setQty] = useState(max > 0 ? 1 : 0);
   const [submitting, setSubmitting] = useState(false);
   const [totalBs, setTotalBs] = useState(0);
+  const buyersNow = useMemo(() => fakeBuyersNow(showId), [showId]);
 
   const total = qty * basePrice;
 
@@ -72,8 +89,11 @@ export function SeatQuantityPicker({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        {available} entrada(s) disponible(s) · se asignan por orden de
-        llegada
+        Las entradas se asignan por orden de llegada.
+      </p>
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground/80">
+        <span className="size-1.5 shrink-0 rounded-full bg-emerald-500" />
+        {buyersNow} {buyersNow === 1 ? "persona está comprando" : "personas están comprando"} ahora
       </p>
 
       <div className="flex items-center gap-4">
