@@ -56,14 +56,10 @@ export default async function HomePage() {
         </p>
         <TypewriterHero />
         <p className="max-w-xl text-base leading-relaxed text-pretty text-muted-foreground sm:text-lg">
-          <span className="block">
-            2 hermanos, 2 sueños:
-            hacerte reír con su show de stand-up comedy… El otro es ganar
-          </span>
-          <span className="mt-1 block">
-            <span className="whitespace-nowrap">$1.000.000.000,</span>
-            pero vamos por parte.
-          </span>
+          2 hermanos, 2 sueños: hacerte reír con su show de stand-up comedy…
+          El otro es ganar{" "}
+          <span className="whitespace-nowrap">$1.000.000.000,</span> pero
+          vamos por parte.
         </p>
         <div className="flex flex-col gap-3 pt-1 sm:flex-row">
           <a
