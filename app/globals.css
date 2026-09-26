@@ -166,6 +166,20 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Smooth, deliberate theme switch instead of an abrupt color swap —
+     also works around iOS Safari sometimes failing to repaint fixed
+     layers (.tc-atmosphere) on an instant class toggle, which left
+     them stuck showing the old theme until a manual reload/scroll. */
+  @media (prefers-reduced-motion: no-preference) {
+    *,
+    *::before,
+    *::after {
+      transition-property: background-color, border-color, color, fill, stroke,
+        text-decoration-color;
+      transition-timing-function: ease;
+      transition-duration: 300ms;
+    }
+  }
   :root {
     color-scheme: light;
   }

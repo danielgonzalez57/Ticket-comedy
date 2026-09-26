@@ -63,12 +63,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className="tc-grain relative min-h-full flex flex-col bg-background text-foreground"
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {/* Fixed atmosphere layer (lemon glow). */}
           <div
             aria-hidden
