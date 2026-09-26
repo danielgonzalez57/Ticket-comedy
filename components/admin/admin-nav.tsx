@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useFormStatus } from "react-dom";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import {
   LayoutDashboard,
@@ -12,6 +13,7 @@ import {
   Users,
   ScanLine,
   LogOut,
+  Loader2,
   Menu,
   X,
 } from "lucide-react";
@@ -69,19 +71,31 @@ function NavLinks({
   );
 }
 
+function SignOutSubmitButton({ large }: { large: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className={cn(
+        "flex w-full items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground disabled:pointer-events-none disabled:opacity-60",
+        large ? "py-3 text-base" : "py-2",
+      )}
+    >
+      {pending ? (
+        <Loader2 className={cn("animate-spin", large ? "size-5" : "size-4")} />
+      ) : (
+        <LogOut className={large ? "size-5" : "size-4"} />
+      )}
+      {pending ? "Saliendo…" : "Salir"}
+    </button>
+  );
+}
+
 function SignOutButton({ large = false }: { large?: boolean }) {
   return (
     <form action={signOut}>
-      <button
-        type="submit"
-        className={cn(
-          "flex w-full items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground",
-          large ? "py-3 text-base" : "py-2",
-        )}
-      >
-        <LogOut className={large ? "size-5" : "size-4"} />
-        Salir
-      </button>
+      <SignOutSubmitButton large={large} />
     </form>
   );
 }
