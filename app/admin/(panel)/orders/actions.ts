@@ -9,8 +9,6 @@ import { sendRejectionEmail } from "@/lib/email";
 import { whatsappUrl, normalizeVePhone, orderCode } from "@/lib/whatsapp";
 import type { Order, Seat, Show } from "@/lib/database.types";
 
-export type { ConfirmResult };
-
 // Admin "Confirmar pago" — see verifyOrder for what confirming does.
 export async function confirmPayment(orderId: string): Promise<ConfirmResult> {
   const user = await requireUser();
