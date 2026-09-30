@@ -1143,3 +1143,31 @@ grant execute on function release_expired_holds() to service_role;
 grant execute on function purge_rate_limit_hits() to service_role;
 grant execute on function check_rate_limit(text, int, int) to service_role;
 grant execute on function find_order_by_code(text) to service_role;
+
+-- =============================================================
+-- Editing a show's price re-prices its unsold seats (migration 0019),
+-- since orders are totalled from seats.price.
+-- =============================================================
+create or replace function sync_seat_prices()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update seats
+     set price = new.base_price
+   where show_id = new.id
+     and status <> 'sold';
+  return new;
+end;
+$$;
+
+revoke execute on function sync_seat_prices() from public, anon, authenticated;
+
+drop trigger if exists shows_sync_seat_prices on shows;
+create trigger shows_sync_seat_prices
+  after update of base_price on shows
+  for each row
+  when (old.base_price is distinct from new.base_price)
+  execute function sync_seat_prices();
