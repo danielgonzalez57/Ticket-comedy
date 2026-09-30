@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { notifyNewSale } from "@/lib/telegram";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import {
@@ -105,6 +107,9 @@ export async function reportPayment(
       .update({ binance_email: report.binanceEmail })
       .eq("id", orderId);
   }
+
+  // After the response so the customer never waits on Telegram.
+  after(() => notifyNewSale(orderId));
 
   revalidatePath(`/orders/${orderId}`);
   return { ok: true };

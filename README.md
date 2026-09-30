@@ -46,6 +46,8 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_BINANCE_INFO` | Opcional: reemplaza los datos de Binance por defecto (`lib/constants.ts`), mismo formato `Etiqueta: valor \| Etiqueta: valor` |
 | `BINANCE_API_KEY` | Opcional (¡secreta!): API key **solo lectura** de la cuenta que recibe los pagos. Activa la verificación automática de Binance Pay |
 | `BINANCE_API_SECRET` | Opcional (¡secreta!): Secret de esa API key |
+| `TELEGRAM_BOT_TOKEN` | Opcional (¡secreta!): token del bot de @BotFather. Avisa por Telegram cada venta (pago reportado) |
+| `TELEGRAM_CHAT_ID` | Opcional: chat (persona o grupo con el bot) que recibe esos avisos |
 
 #### Correos a clientes (Resend)
 
