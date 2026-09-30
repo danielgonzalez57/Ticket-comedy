@@ -83,7 +83,7 @@ npm run dev
 
 - **Crear show** (`/admin/shows/new`): defines filas × columnas y se generan los
   asientos (A1, A2…) automáticamente. Publícalo para que aparezca al público.
-- **Reservar** (`/shows/[id]`): el cliente elige hasta **4 asientos**, llena sus
+- **Reservar** (`/shows/[id]`): el cliente elige hasta **10 entradas**, llena sus
   datos y ve a dónde transferir. La orden queda `pending` y los asientos quedan
   en `held` por **20 minutos** (se liberan solos al expirar).
 - **Confirmar pago** (`/admin/orders/[id]`): el admin marca la orden como pagada

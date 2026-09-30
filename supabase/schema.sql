@@ -399,8 +399,8 @@ begin
   if p_quantity is null or p_quantity < 1 then
     raise exception 'NO_SEATS';
   end if;
-  if p_quantity > 4 then
-    raise exception 'MAX_4_SEATS';
+  if p_quantity > 10 then
+    raise exception 'MAX_SEATS';
   end if;
 
   select * into v_show from shows where id = p_show_id and status = 'published';
@@ -713,8 +713,8 @@ begin
   if v_requested is null or v_requested < 1 then
     raise exception 'NO_SEATS';
   end if;
-  if v_requested > 4 then
-    raise exception 'MAX_4_SEATS';
+  if v_requested > 10 then
+    raise exception 'MAX_SEATS';
   end if;
 
   v_old_seat_ids := v_order.seat_ids;

@@ -8,6 +8,7 @@ import { autoVerifyBinanceOrder, describeAutoVerify } from "@/lib/binance-verify
 import { sendRejectionEmail } from "@/lib/email";
 import { whatsappUrl, normalizeVePhone, orderCode } from "@/lib/whatsapp";
 import type { Order, Seat, Show } from "@/lib/database.types";
+import { MAX_SEATS_PER_ORDER } from "@/lib/constants";
 
 // Admin "Confirmar pago" — see verifyOrder for what confirming does.
 export async function confirmPayment(orderId: string): Promise<ConfirmResult> {
@@ -134,8 +135,8 @@ export async function reassignOrderSeats(
           "Esos asientos cuestan más que los originales; no se puede reasignar sin un pago adicional.",
       };
     }
-    if (msg.includes("MAX_4_SEATS")) {
-      return { ok: false, error: "Máximo 4 asientos por orden." };
+    if (msg.includes("MAX_SEATS")) {
+      return { ok: false, error: `Máximo ${MAX_SEATS_PER_ORDER} asientos por orden.` };
     }
     if (msg.includes("INVALID_STATUS")) {
       return { ok: false, error: "Esta orden ya no se puede reasignar." };

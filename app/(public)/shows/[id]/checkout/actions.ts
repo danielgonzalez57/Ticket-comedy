@@ -24,7 +24,7 @@ const VALID_METHODS: PaymentMethod[] = PAYMENT_METHODS.map((m) => m.value);
 
 const ERROR_MESSAGES: Record<string, string> = {
   NO_SEATS: "Elige al menos una entrada.",
-  MAX_4_SEATS: `Máximo ${MAX_SEATS_PER_ORDER} entradas por orden.`,
+  MAX_SEATS: `Máximo ${MAX_SEATS_PER_ORDER} entradas por orden.`,
   SHOW_NOT_AVAILABLE: "Este show ya no está disponible.",
   SOLD_OUT:
     "Ya no quedan suficientes entradas disponibles. Elige menos o vuelve a la cartelera.",
@@ -67,7 +67,7 @@ export async function createOrder(
     return { error: "Cantidad de entradas inválida." };
   }
   if (quantity > MAX_SEATS_PER_ORDER) {
-    return { error: ERROR_MESSAGES.MAX_4_SEATS };
+    return { error: ERROR_MESSAGES.MAX_SEATS };
   }
   if (!name) return { error: "Ingresa tu nombre." };
   if (name.length > 100) return { error: "El nombre es demasiado largo." };

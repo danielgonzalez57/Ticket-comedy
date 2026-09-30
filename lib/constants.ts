@@ -1,7 +1,9 @@
 import type { PaymentMethod } from "@/lib/database.types";
 
 export const HOLD_MINUTES = 20;
-export const MAX_SEATS_PER_ORDER = 4;
+// Must match the limit in create_pending_order_by_qty and
+// reassign_order_seats (supabase/migrations/0020_max_10_seats.sql).
+export const MAX_SEATS_PER_ORDER = 10;
 
 // Labels for every method an order can carry — including ones no
 // longer offered at checkout, so older orders still render.
