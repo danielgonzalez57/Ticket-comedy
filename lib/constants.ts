@@ -48,22 +48,38 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   cancelled: "Cancelada",
 };
 
-// Common Venezuelan banks for Pago Móvil / transferencia. banco_emisor
-// is free text in the DB, so this is just an <datalist> of suggestions.
+// Venezuelan banks for Pago Móvil / transferencia, by SUDEBAN code
+// (the code helps match the bank statement). banco_emisor is free
+// text in the DB, so this is just a <datalist> of suggestions — the
+// customer can still type a bank that isn't listed.
 export const VE_BANKS = [
-  "Banesco",
-  "Banco de Venezuela",
-  "Banco Mercantil",
-  "BBVA Provincial",
-  "Bancaribe",
-  "Banco Nacional de Crédito (BNC)",
-  "Banplus",
-  "Banco Exterior",
-  "Bancamiga",
-  "100% Banco",
-  "Banco Plaza",
-  "Banco Activo",
-  "Mi Banco",
+  "0102 - Banco de Venezuela",
+  "0104 - Venezolano de Crédito",
+  "0105 - Banco Mercantil",
+  "0108 - BBVA Provincial",
+  "0114 - Bancaribe",
+  "0115 - Banco Exterior",
+  "0128 - Banco Caroní",
+  "0134 - Banesco",
+  "0137 - Sofitasa",
+  "0138 - Banco Plaza",
+  "0146 - Bangente",
+  "0151 - BFC Banco Fondo Común",
+  "0156 - 100% Banco",
+  "0157 - DelSur",
+  "0163 - Banco del Tesoro",
+  "0166 - Banco Agrícola de Venezuela",
+  "0168 - Bancrecer",
+  "0169 - R4 Banco Microfinanciero (Mi Banco)",
+  "0171 - Banco Activo",
+  "0172 - Bancamiga",
+  "0173 - Banco Internacional de Desarrollo",
+  "0174 - Banplus",
+  "0175 - Banco Digital de los Trabajadores (Bicentenario)",
+  "0177 - Banfanb",
+  "0178 - N58 Banco Digital",
+  "0191 - Banco Nacional de Crédito (BNC)",
+  "0601 - Instituto Municipal de Crédito Popular",
 ];
 
 export function siteUrl(): string {
