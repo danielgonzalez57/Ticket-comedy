@@ -1,5 +1,6 @@
 "use client";
 
+import { Autocomplete } from "@base-ui/react/autocomplete";
 import type { PaymentMethod } from "@/lib/database.types";
 import { VE_BANKS } from "@/lib/constants";
 import type { PaymentReportFields } from "@/lib/payment-report";
@@ -78,21 +79,44 @@ export function PaymentDataFields({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="banco_emisor">Banco emisor</Label>
-          <Input
-            id="banco_emisor"
-            name="banco_emisor"
-            list="ve-banks"
-            autoComplete="off"
-            placeholder="Ej: Banesco"
+          {/* Free-text input with suggestions. Not a native <datalist>:
+              browsers draw that popup in their own theme, so it stayed
+              dark when the app was in light mode. */}
+          <Autocomplete.Root
+            items={VE_BANKS}
             value={values.banco}
-            onChange={set("banco")}
-            required
-          />
-          <datalist id="ve-banks">
-            {VE_BANKS.map((b) => (
-              <option key={b} value={b} />
-            ))}
-          </datalist>
+            onValueChange={(banco) => onChange({ ...values, banco })}
+            openOnInputClick
+          >
+            <Autocomplete.Input
+              render={<Input />}
+              id="banco_emisor"
+              name="banco_emisor"
+              autoComplete="off"
+              placeholder="Ej: Banesco"
+              required
+            />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner
+                sideOffset={4}
+                className="isolate z-50"
+              >
+                <Autocomplete.Popup className="max-h-[min(var(--available-height),18rem)] w-(--anchor-width) overflow-y-auto rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg shadow-black/5 data-empty:hidden dark:shadow-black/50">
+                  <Autocomplete.List>
+                    {(bank: string) => (
+                      <Autocomplete.Item
+                        key={bank}
+                        value={bank}
+                        className="cursor-pointer rounded-lg px-2.5 py-2 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground"
+                      >
+                        {bank}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>
         </div>
         <div className="space-y-2">
           <Label htmlFor="payment_ref">Referencia (últimos 6-8 díg.)</Label>
