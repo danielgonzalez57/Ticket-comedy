@@ -11,7 +11,7 @@ import {
   gridForCapacity,
 } from "@/lib/seats";
 import { deletePoster, uploadPoster } from "@/lib/storage";
-import { parseDecimal } from "@/lib/format";
+import { caracasInputToISO, parseDecimal } from "@/lib/format";
 import type { SeatStatus, ShowStatus } from "@/lib/database.types";
 
 function parseComedians(raw: string): string[] {
@@ -97,7 +97,11 @@ function readShowFields(formData: FormData): ShowFields {
     name,
     description: String(formData.get("description") ?? "").trim() || null,
     venue,
-    date: new Date(dateRaw).toISOString(),
+    // dateRaw is the raw <input type="datetime-local"> value — a
+    // timezone-less wall-clock string. `new Date(dateRaw)` would parse
+    // it in whatever timezone the server process happens to run in,
+    // not the Caracas time the admin actually typed.
+    date: caracasInputToISO(dateRaw),
     comedians: parseComedians(String(formData.get("comedians") ?? "")),
     base_price: basePrice,
     tasa,

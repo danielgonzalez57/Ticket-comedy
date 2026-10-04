@@ -2,6 +2,12 @@
 // frozen Bs amount — see the currency model in
 // supabase/migrations/0004_currency_model.sql — and Spanish dates).
 
+import {
+  SHOW_TIMEZONE,
+  SHOW_UTC_OFFSET,
+  SHOW_UTC_OFFSET_HOURS,
+} from "@/lib/constants";
+
 export function formatMoney(amount: number | string): string {
   const n = typeof amount === "string" ? Number(amount) : amount;
   return new Intl.NumberFormat("es-VE", {
@@ -95,6 +101,7 @@ export function formatDate(value: string | Date): string {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: SHOW_TIMEZONE,
   }).format(d);
 }
 
@@ -116,15 +123,26 @@ export function formatShortDate(value: string | Date): string {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: SHOW_TIMEZONE,
   }).format(d);
 }
 
 // Builds a value usable in <input type="datetime-local"> from an ISO
-// string, in the browser's local time.
+// string, in Caracas wall-clock time (not the browser's/runtime's
+// local time — see SHOW_UTC_OFFSET).
 export function toDatetimeLocal(value: string | Date): string {
   const d = typeof value === "string" ? new Date(value) : value;
+  const caracas = new Date(d.getTime() + SHOW_UTC_OFFSET_HOURS * 3_600_000);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
-    d.getHours(),
-  )}:${pad(d.getMinutes())}`;
+  return `${caracas.getUTCFullYear()}-${pad(caracas.getUTCMonth() + 1)}-${pad(
+    caracas.getUTCDate(),
+  )}T${pad(caracas.getUTCHours())}:${pad(caracas.getUTCMinutes())}`;
+}
+
+// Takes the raw value of an <input type="datetime-local"> (a
+// timezone-less wall-clock string, e.g. "2026-10-15T21:00") and
+// returns the ISO instant it represents in Caracas time — regardless
+// of what timezone the server process parsing it happens to run in.
+export function caracasInputToISO(value: string): string {
+  return new Date(`${value}${SHOW_UTC_OFFSET}`).toISOString();
 }

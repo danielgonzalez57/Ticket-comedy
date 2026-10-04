@@ -2,13 +2,20 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight, Beer, Ticket } from "lucide-react";
 import type { ShowWithBs } from "@/lib/database.types";
+import { SHOW_TIMEZONE } from "@/lib/constants";
 import { formatMoney, formatBs } from "@/lib/format";
 
 function dateParts(value: string) {
   const d = new Date(value);
   return {
-    day: new Intl.DateTimeFormat("es-VE", { day: "2-digit" }).format(d),
-    month: new Intl.DateTimeFormat("es-VE", { month: "short" })
+    day: new Intl.DateTimeFormat("es-VE", {
+      day: "2-digit",
+      timeZone: SHOW_TIMEZONE,
+    }).format(d),
+    month: new Intl.DateTimeFormat("es-VE", {
+      month: "short",
+      timeZone: SHOW_TIMEZONE,
+    })
       .format(d)
       .replace(".", "")
       .toUpperCase(),

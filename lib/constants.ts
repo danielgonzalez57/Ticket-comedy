@@ -5,6 +5,21 @@ export const HOLD_MINUTES = 20;
 // reassign_order_seats (supabase/migrations/0020_max_10_seats.sql).
 export const MAX_SEATS_PER_ORDER = 10;
 
+// IANA zone for every show date shown to anyone (card, detail, email,
+// Telegram). Must be explicit everywhere a show date is parsed or
+// formatted — relying on the runtime's default timezone makes the
+// displayed hour depend on whatever machine renders it (dev laptop,
+// Vercel function, a notification script), which is how "9pm" turns
+// into a different hour depending on where it's shown.
+export const SHOW_TIMEZONE = "America/Caracas";
+
+// Venezuela has used a fixed UTC-4 offset (no DST) since 2016-05-01,
+// so a plain numeric offset is safe for the couple of places that
+// need to convert between a UTC instant and a Caracas wall-clock
+// string without a timezone library.
+export const SHOW_UTC_OFFSET = "-04:00";
+export const SHOW_UTC_OFFSET_HOURS = -4;
+
 // Labels for every method an order can carry — including ones no
 // longer offered at checkout, so older orders still render.
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
