@@ -12,7 +12,11 @@ import {
   Keyboard,
   Loader2,
   ScanLine,
+  CalendarX,
+  RotateCcw,
+  WifiOff,
 } from "lucide-react";
+import { formatClockTime, formatDate } from "@/lib/format";
 import {
   validateTicket,
   type ValidateResult,
@@ -38,6 +42,16 @@ function vibrate(pattern: number | number[]) {
   } catch {
     /* unsupported */
   }
+}
+
+type IgnoreWindow = { value: string; until: number };
+
+function ignoreFor(value: string, ms: number): IgnoreWindow {
+  return { value, until: Date.now() + ms };
+}
+
+function isIgnored(w: IgnoreWindow | null, value: string): boolean {
+  return w !== null && w.value === value && Date.now() < w.until;
 }
 
 // Camera stays on for the whole visit to this page: between scans it's
@@ -164,18 +178,32 @@ export function QrScanner() {
     }
   }
 
-  async function check(raw: string) {
+  // Last value sent to the server, for "Reintentar" / "Dejar pasar".
+  const lastValueRef = useRef("");
+  // After "Escanear otra" the phone is often still pointed at the QR
+  // that was just validated; ignore that same code for a moment so it
+  // doesn't come back as "Ya fue utilizada".
+  const ignoreRef = useRef<IgnoreWindow | null>(null);
+
+  async function check(raw: string, fromCamera = true) {
     const value = raw.trim();
     if (busyRef.current || !value) return;
+    if (fromCamera && isIgnored(ignoreRef.current, value)) return;
     busyRef.current = true;
     pauseCamera();
     vibrate(40);
+    await runValidation(value);
+  }
+
+  async function runValidation(value: string, opts?: { ignoreDate?: boolean }) {
+    lastValueRef.current = value;
     setPhase("checking");
     let res: ValidateResult;
     try {
-      res = await validateTicket(value);
+      res = await validateTicket(value, opts);
     } catch {
-      res = { status: "invalid" };
+      // Network down / server unreachable — not a verdict on the ticket.
+      res = { status: "error" };
     }
     if (unmountedRef.current) return;
     vibrate(res.status === "valid" ? 80 : [120, 80, 120]);
@@ -185,10 +213,11 @@ export function QrScanner() {
 
   function submitManual(e: React.FormEvent) {
     e.preventDefault();
-    void check(manual);
+    void check(manual, false);
   }
 
   function scanAgain() {
+    ignoreRef.current = ignoreFor(lastValueRef.current, 3000);
     busyRef.current = false;
     setResult(null);
     setManual("");
@@ -209,7 +238,16 @@ export function QrScanner() {
 
   return (
     <div className="mx-auto max-w-md">
-      {showingResult && <ResultCard result={result} onScanAgain={scanAgain} />}
+      {showingResult && (
+        <ResultCard
+          result={result}
+          onScanAgain={scanAgain}
+          onRetry={() => void runValidation(lastValueRef.current)}
+          onAdmitAnyway={() =>
+            void runValidation(lastValueRef.current, { ignoreDate: true })
+          }
+        />
+      )}
 
       {/* Kept mounted while a result shows (only hidden): the scanner is
           bound to READER_ID and resumes in place. */}
@@ -365,20 +403,36 @@ const CONFIG: Record<
     className: "bg-destructive text-white",
     icon: XCircle,
   },
+  wrong_date: {
+    label: "Entrada de otra fecha",
+    hint: "Esta entrada no es para el show de hoy",
+    className: "bg-amber-500 text-black",
+    icon: CalendarX,
+  },
   invalid: {
     label: "Entrada no encontrada",
     hint: "El código no corresponde a ninguna entrada",
     className: "bg-destructive text-white",
     icon: XCircle,
   },
+  error: {
+    label: "No se pudo verificar",
+    hint: "Falló la conexión. Revisa el internet y reintenta — no es un problema de la entrada",
+    className: "bg-secondary text-foreground",
+    icon: WifiOff,
+  },
 };
 
 function ResultCard({
   result,
   onScanAgain,
+  onRetry,
+  onAdmitAnyway,
 }: {
   result: ValidateResult;
   onScanAgain: () => void;
+  onRetry: () => void;
+  onAdmitAnyway: () => void;
 }) {
   const cfg = CONFIG[result.status];
   const Icon = cfg.icon;
@@ -390,7 +444,33 @@ function ResultCard({
         <Icon className="mx-auto size-16" strokeWidth={2.25} />
         <p className="mt-4 font-heading text-2xl font-bold">{cfg.label}</p>
         <p className="mt-1 text-sm opacity-85">{cfg.hint}</p>
+        {result.status === "used" && result.usedAt && (
+          <p className="mt-2 text-sm font-semibold">
+            Escaneada a las {formatClockTime(result.usedAt)}
+          </p>
+        )}
+        {result.status === "wrong_date" && result.showDate && (
+          <p className="mt-2 text-sm font-semibold first-letter:uppercase">
+            Es para el {formatDate(result.showDate)}
+          </p>
+        )}
       </div>
+
+      {result.status === "error" && (
+        <Button size="lg" className="h-12 w-full text-base" onClick={onRetry} autoFocus>
+          <RotateCcw className="size-5" /> Reintentar
+        </Button>
+      )}
+      {result.status === "wrong_date" && (
+        <Button
+          size="lg"
+          variant="outline"
+          className="h-12 w-full text-base"
+          onClick={onAdmitAnyway}
+        >
+          Dejar pasar igual
+        </Button>
+      )}
 
       {hasDetails && (
         <dl className="divide-y divide-border rounded-2xl border border-border bg-card text-sm">
@@ -421,7 +501,13 @@ function ResultCard({
         </dl>
       )}
 
-      <Button size="lg" className="h-12 w-full text-base" onClick={onScanAgain} autoFocus>
+      <Button
+        size="lg"
+        variant={result.status === "error" ? "outline" : "default"}
+        className="h-12 w-full text-base"
+        onClick={onScanAgain}
+        autoFocus={result.status !== "error"}
+      >
         <ScanLine className="size-5" /> Escanear otra
       </Button>
     </div>
