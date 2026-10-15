@@ -44,6 +44,8 @@ function QuerySearchInput({
       const params = new URLSearchParams(searchParams.toString());
       if (next.trim()) params.set(param!, next.trim());
       else params.delete(param!);
+      // A new search changes the result count; start from page 1.
+      params.delete("page");
       const query = params.toString();
       router.push(query ? `${pathname}?${query}` : pathname);
     }, 350);

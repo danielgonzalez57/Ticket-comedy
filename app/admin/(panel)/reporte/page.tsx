@@ -4,6 +4,7 @@ import { OrderStatusBadge } from "@/components/status-badge";
 import { QuerySelect } from "@/components/query-select";
 import { QuerySearch } from "@/components/admin/query-search";
 import { HorizontalBarChart } from "@/components/admin/horizontal-bar-chart";
+import { PAGE_SIZE, Pagination, parsePage } from "@/components/admin/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -31,9 +32,9 @@ const STATUS_OPTIONS = [
 export default async function ReportePage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; show?: string; q?: string }>;
+  searchParams: Promise<{ status?: string; show?: string; q?: string; page?: string }>;
 }) {
-  const { status, show, q } = await searchParams;
+  const { status, show, q, page: pageParam } = await searchParams;
   const { overview, perShow, orders, showName, revenueByMonth, paymentMethodBreakdown } =
     await getSalesReport();
 
@@ -47,6 +48,8 @@ export default async function ReportePage({
         o.customer_email.toLowerCase().includes(query) ||
         (o.payment_ref ?? "").toLowerCase().includes(query)),
   );
+  const { page, totalPages, from } = parsePage(pageParam, filtered.length);
+  const pageRows = filtered.slice(from, from + PAGE_SIZE);
 
   const overallOccupancy =
     overview.totalSeats > 0 ? overview.soldSeats / overview.totalSeats : 0;
@@ -212,7 +215,7 @@ export default async function ReportePage({
                   </TableCell>
                 </TableRow>
               ) : (
-                filtered.map((o) => (
+                pageRows.map((o) => (
                   <TableRow key={o.id}>
                     <TableCell>
                       <Link href={`/admin/orders/${o.id}`} className="font-medium hover:underline">
@@ -244,6 +247,13 @@ export default async function ReportePage({
             </TableBody>
           </Table>
         </div>
+        <Pagination
+          pathname="/admin/reporte"
+          params={{ status, show, q }}
+          page={page}
+          totalPages={totalPages}
+          total={filtered.length}
+        />
       </section>
     </div>
   );

@@ -31,6 +31,8 @@ export function QuerySelect({
     const params = new URLSearchParams(searchParams.toString());
     if (!next || next === ALL) params.delete(param);
     else params.set(param, next);
+    // A new filter changes the result count; start from page 1.
+    params.delete("page");
     const query = params.toString();
     router.push(query ? `${pathname}?${query}` : pathname);
   }

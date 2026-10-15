@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { OrderStatusBadge } from "@/components/status-badge";
 import { QuerySelect } from "@/components/query-select";
 import { QuerySearch } from "@/components/admin/query-search";
+import { PAGE_SIZE, Pagination, parsePage } from "@/components/admin/pagination";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -25,14 +26,14 @@ const STATUS_OPTIONS = [
 export default async function OrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; show?: string; q?: string }>;
+  searchParams: Promise<{ status?: string; show?: string; q?: string; page?: string }>;
 }) {
-  const { status, show, q } = await searchParams;
+  const { status, show, q, page: pageParam } = await searchParams;
   const supabase = await createClient();
 
   let query = supabase
     .from("orders")
-    .select("*")
+    .select("*", { count: "exact" })
     .order("created_at", { ascending: false });
 
   const VALID_STATUSES: Order["status"][] = [
@@ -55,10 +56,21 @@ export default async function OrdersPage({
     );
   }
 
-  const [{ data: orderData }, { data: showData }] = await Promise.all([
-    query,
+  // Fetch only the requested page. An out-of-range ?page= (e.g. the
+  // list shrank) comes back empty with the real count, so retry once
+  // on the last valid page.
+  const requested = Math.max(1, Number.parseInt(pageParam ?? "1", 10) || 1);
+  const rangeOf = (p: number) =>
+    [(p - 1) * PAGE_SIZE, p * PAGE_SIZE - 1] as const;
+
+  const [firstTry, { data: showData }] = await Promise.all([
+    query.range(...rangeOf(requested)),
     supabase.from("shows").select("*").order("date", { ascending: false }),
   ]);
+  const total = firstTry.count ?? 0;
+  const { page, totalPages } = parsePage(String(requested), total);
+  const orderData =
+    page === requested ? firstTry.data : (await query.range(...rangeOf(page))).data;
 
   const orders = (orderData ?? []) as Order[];
   const shows = (showData ?? []) as Show[];
@@ -149,6 +161,14 @@ export default async function OrdersPage({
           ))}
         </div>
       )}
+
+      <Pagination
+        pathname="/admin/orders"
+        params={{ status, show, q }}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+      />
     </div>
   );
 }
