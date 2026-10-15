@@ -127,6 +127,18 @@ export function formatShortDate(value: string | Date): string {
   }).format(d);
 }
 
+// Caracas wall-clock time the way people write it in a message:
+// "8:30 p.m.". Done by hand because Intl's es-VE output ("8:30 p. m.")
+// varies between runtimes.
+export function formatClockTime(value: string | Date): string {
+  const d = typeof value === "string" ? new Date(value) : value;
+  const caracas = new Date(d.getTime() + SHOW_UTC_OFFSET_HOURS * 3_600_000);
+  const h24 = caracas.getUTCHours();
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  const mm = String(caracas.getUTCMinutes()).padStart(2, "0");
+  return `${h12}:${mm} ${h24 < 12 ? "a.m." : "p.m."}`;
+}
+
 // Builds a value usable in <input type="datetime-local"> from an ISO
 // string, in Caracas wall-clock time (not the browser's/runtime's
 // local time — see SHOW_UTC_OFFSET).

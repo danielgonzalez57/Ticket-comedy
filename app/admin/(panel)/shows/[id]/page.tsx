@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink, AlertTriangle } from "lucide-react";
+import { ExternalLink, AlertTriangle, MessageCircle } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { updateShow } from "@/app/admin/(panel)/shows/actions";
 import { ShowForm } from "@/components/admin/show-form";
@@ -54,6 +55,13 @@ export default async function EditShowPage({
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Link
+            href={`/admin/shows/${typedShow.id}/recordatorio`}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            <MessageCircle />
+            Recordatorio WhatsApp
+          </Link>
           {typedShow.status === "published" && (
             <Link
               href={`/shows/${typedShow.id}`}
