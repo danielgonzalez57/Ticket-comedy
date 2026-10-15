@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, FileDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { OrderStatusBadge } from "@/components/status-badge";
 import { QuerySelect } from "@/components/query-select";
 import { QuerySearch } from "@/components/admin/query-search";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDualMoney, formatShortDate } from "@/lib/format";
 import { orderCode } from "@/lib/whatsapp";
@@ -63,9 +64,33 @@ export default async function OrdersPage({
   const shows = (showData ?? []) as Show[];
   const showName = new Map(shows.map((s) => [s.id, s.name]));
 
+  // Same filters as this list; the PDF route defaults to verified
+  // orders when no status is picked.
+  const pdfParams = new URLSearchParams(
+    Object.entries({ status, show, q }).filter(
+      (e): e is [string, string] => Boolean(e[1]),
+    ),
+  ).toString();
+
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold tracking-tight">Órdenes</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold tracking-tight">Órdenes</h1>
+        {/* Plain <a>, not <Link>: it's a file download, not a page. */}
+        <a
+          href={`/admin/orders/pdf${pdfParams ? `?${pdfParams}` : ""}`}
+          download
+          title={
+            status
+              ? "Descarga la lista con los filtros actuales"
+              : "Descarga las órdenes verificadas con los filtros actuales"
+          }
+          className={buttonVariants({ variant: "outline", size: "lg" })}
+        >
+          <FileDown />
+          Lista de acceso (PDF)
+        </a>
+      </div>
 
       <div className="flex flex-wrap gap-3">
         <QuerySearch placeholder="Buscar cliente, referencia..." />
