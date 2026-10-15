@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { whatsappUrl } from "@/lib/whatsapp";
+import { fillReminder, firstName } from "@/lib/reminder";
 
 export type ReminderRecipient = {
   phone: string; // normalized, 58...
@@ -70,10 +71,6 @@ function parseList(raw: string | null): string[] {
   }
 }
 
-function firstName(name: string): string {
-  return name.split(/\s+/)[0] ?? "";
-}
-
 export function WhatsappReminder({
   showId,
   defaultMessage,
@@ -99,11 +96,7 @@ export function WhatsappReminder({
   }
 
   function send(r: ReminderRecipient) {
-    const text = message.replaceAll("{nombre}", firstName(r.name)).replace(
-      // "¡Hola !" when a name is missing.
-      /¡Hola !/,
-      "¡Hola!",
-    );
+    const text = fillReminder(message, r.name);
     window.open(whatsappUrl(r.phone, text), "_blank", "noopener");
     markSent(r.phone);
   }

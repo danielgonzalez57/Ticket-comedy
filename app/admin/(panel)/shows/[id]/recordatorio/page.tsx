@@ -2,15 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { WhatsappReminder, type ReminderRecipient } from "@/components/admin/whatsapp-reminder";
-import { formatClockTime, formatDate } from "@/lib/format";
-import { siteUrl } from "@/lib/constants";
+import { formatDate } from "@/lib/format";
+import { reminderTemplate } from "@/lib/reminder";
 import { normalizeVePhone } from "@/lib/whatsapp";
 import type { Order, Show } from "@/lib/database.types";
 
 export const dynamic = "force-dynamic";
-
-// Doors open this long before the show starts.
-const DOORS_BEFORE_MINUTES = 30;
 
 export default async function ReminderPage({
   params,
@@ -58,21 +55,7 @@ export default async function ReminderPage({
   }
   const recipients = [...byPhone.values()];
 
-  const start = new Date(typedShow.date);
-  const doors = new Date(start.getTime() - DOORS_BEFORE_MINUTES * 60_000);
-  const site = siteUrl().replace(/^https?:\/\//, "").replace(/^www\./, "");
-
-  const defaultMessage = `¡Hola {nombre}! 🧡 Te recordamos que ¡HOY es el show de Pinto y Aparte!
-
-🎫 Tus entradas: Revisa tu correo o entra en ${site} en la sección de Entradas para tenerlas a la mano.
-
-⏰ Horarios de hoy:
-Apertura de puertas: ${formatClockTime(doors)}
-Inicio del show: ${formatClockTime(start)}
-
-🍹 Trata de ser puntual para que disfrutes de tu bebida de cortesía al llegar.
-
-¡Nos vemos esta noche! ✨`;
+  const defaultMessage = reminderTemplate(typedShow.date);
 
   return (
     <div className="max-w-3xl space-y-6">

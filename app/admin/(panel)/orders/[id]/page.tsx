@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, FileText } from "lucide-react";
+import { AlertTriangle, FileText, MessageCircle } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { fillReminder, reminderTemplate } from "@/lib/reminder";
 import { getOrderDetail } from "@/lib/queries";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getReceiptSignedUrl } from "@/lib/storage";
@@ -17,7 +19,7 @@ import {
   formatDateOnly,
   formatTasa,
 } from "@/lib/format";
-import { orderCode } from "@/lib/whatsapp";
+import { normalizeVePhone, orderCode, whatsappUrl } from "@/lib/whatsapp";
 import { BANK_RECONCILED_METHODS, PAYMENT_METHOD_LABELS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -105,6 +107,23 @@ export default async function AdminOrderDetailPage({
         <Row label="Correo" value={order.customer_email} />
         <Row label="Teléfono" value={order.customer_phone} />
         <Row label="Cédula" value={order.cedula || "—"} />
+        {order.status === "verified" && show && (
+          <a
+            href={whatsappUrl(
+              normalizeVePhone(order.customer_phone),
+              fillReminder(reminderTemplate(show.date), order.customer_name),
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "mt-3 w-full",
+            )}
+          >
+            <MessageCircle />
+            Recordar por WhatsApp
+          </a>
+        )}
       </div>
 
       <div className="rounded-xl border border-border bg-card p-5">
