@@ -1,8 +1,10 @@
-// Builds a wa.me link. `phone` must be digits in international format
-// (e.g. 58412XXXXXXX).
+// Builds a click-to-chat link. `phone` must be digits in international
+// format (e.g. 58412XXXXXXX). Uses api.whatsapp.com/send rather than
+// wa.me: wa.me's redirect mangles emoji outside the BMP (🧡 🎫 🍹 ...)
+// into "�" in the prefilled text.
 export function whatsappUrl(phone: string, text: string): string {
   const clean = phone.replace(/\D/g, "");
-  return `https://wa.me/${clean}?text=${encodeURIComponent(text)}`;
+  return `https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(text)}`;
 }
 
 // Normalizes a Venezuelan phone number to international format (58...).

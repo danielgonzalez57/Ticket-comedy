@@ -19,7 +19,7 @@ export type ReminderRecipient = {
 
 // Progress lives in this browser only (localStorage): it's a
 // convenience so the admin knows who's left, not a delivery record —
-// wa.me can't tell us whether the message was actually sent.
+// a click-to-chat link can't tell us whether the message was actually sent.
 const listeners = new Set<() => void>();
 
 function subscribe(listener: () => void) {
