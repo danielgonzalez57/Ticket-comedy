@@ -142,10 +142,11 @@ alter table orders enable row level security;
 
 -- --- Public (anon) read access -------------------------------
 
--- Anyone can read published shows.
+-- Anyone can read published shows, and finished ones (shown on the
+-- home page as past shows, read-only — see migration 0022).
 drop policy if exists "public read published shows" on shows;
 create policy "public read published shows" on shows
-  for select using (status = 'published');
+  for select using (status in ('published', 'finished'));
 
 -- Anyone can read seats that belong to a published show.
 drop policy if exists "public read seats of published shows" on seats;

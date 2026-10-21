@@ -25,7 +25,9 @@ export default async function ShowDetailPage({
       .from("shows_public")
       .select("*")
       .eq("id", id)
-      .eq("status", "published")
+      // Finished shows stay viewable (linked from "Shows anteriores"),
+      // just without the ticket section below.
+      .in("status", ["published", "finished"])
       .single(),
     supabase
       .from("seats_public")
@@ -110,7 +112,25 @@ export default async function ShowDetailPage({
         </section>
       )}
 
-      {/* Ticket quantity */}
+      {typedShow.status === "finished" ? (
+        <section className="rounded-2xl border border-dashed border-border p-6 text-center">
+          <p className="font-heading text-lg font-bold uppercase tracking-tight">
+            Este show ya pasó
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Gracias a todos los que vinieron. Mira la cartelera para los
+            próximos shows.
+          </p>
+          <Link
+            href="/#cartelera"
+            className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <Ticket className="size-4" />
+            Ver cartelera
+          </Link>
+        </section>
+      ) : (
+      /* Ticket quantity */
       <section className="space-y-5 rounded-2xl border border-border bg-card/60 p-5 sm:p-6">
         <div className="flex items-baseline justify-between">
           <h2 className="font-heading text-xl font-bold uppercase tracking-tight">
@@ -137,6 +157,7 @@ export default async function ShowDetailPage({
           />
         )}
       </section>
+      )}
     </div>
   );
 }

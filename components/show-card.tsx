@@ -24,6 +24,8 @@ function dateParts(value: string) {
 
 export function ShowCard({ show }: { show: ShowWithBs }) {
   const { day, month } = dateParts(show.date);
+  // Past shows stay listed on the home page, read-only.
+  const finished = show.status === "finished";
 
   return (
     <Link
@@ -57,6 +59,12 @@ export function ShowCard({ show }: { show: ShowWithBs }) {
             {month}
           </span>
         </div>
+
+        {finished && (
+          <span className="absolute right-2.5 top-2.5 rounded-full bg-background/95 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground shadow-lg ring-1 ring-black/5 backdrop-blur dark:ring-white/10">
+            Finalizado
+          </span>
+        )}
       </div>
 
       {/* Content */}
@@ -70,7 +78,7 @@ export function ShowCard({ show }: { show: ShowWithBs }) {
             {show.comedians.join(" · ")}
           </p>
         )}
-        {show.includes_beer && (
+        {show.includes_beer && !finished && (
           <p className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-highlight">
             <Beer className="size-4 shrink-0" aria-hidden />
             La entrada incluye una birra
@@ -83,17 +91,21 @@ export function ShowCard({ show }: { show: ShowWithBs }) {
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         {/* Wraps as whole pieces on narrow phones: the Bs amount drops to
             its own line instead of breaking mid-number. */}
-        <span className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 text-sm">
-          <span className="whitespace-nowrap">
-            <span className="text-muted-foreground">Desde </span>
-            <span className="font-heading font-bold text-foreground">
-              {formatMoney(show.base_price)}
+        {finished ? (
+          <span className="text-sm text-muted-foreground">Ver detalle</span>
+        ) : (
+          <span className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 text-sm">
+            <span className="whitespace-nowrap">
+              <span className="text-muted-foreground">Desde </span>
+              <span className="font-heading font-bold text-foreground">
+                {formatMoney(show.base_price)}
+              </span>
+            </span>
+            <span className="whitespace-nowrap text-muted-foreground">
+              ({formatBs(show.base_price_bs)})
             </span>
           </span>
-          <span className="whitespace-nowrap text-muted-foreground">
-            ({formatBs(show.base_price_bs)})
-          </span>
-        </span>
+        )}
         <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform duration-300 group-hover:rotate-45">
           <ArrowUpRight className="size-4" />
         </span>

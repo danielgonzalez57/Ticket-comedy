@@ -30,17 +30,27 @@ const ORGANIZATION_JSON_LD = {
 };
 
 const FEATURED_COUNT = 6;
+const PAST_COUNT = 6;
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const { data: shows } = await supabase
-    .from("shows_public")
-    .select("*")
-    .eq("status", "published")
-    .order("created_at", { ascending: false });
+  const [{ data: shows }, { data: pastShows }] = await Promise.all([
+    supabase
+      .from("shows_public")
+      .select("*")
+      .eq("status", "published")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("shows_public")
+      .select("*")
+      .eq("status", "finished")
+      .order("date", { ascending: false })
+      .limit(PAST_COUNT),
+  ]);
 
   const list = (shows ?? []) as ShowWithBs[];
   const featured = list.slice(0, FEATURED_COUNT);
+  const past = (pastShows ?? []) as ShowWithBs[];
 
   return (
     <div className="space-y-12">
@@ -134,6 +144,20 @@ export default async function HomePage() {
           </>
         )}
       </section>
+
+      {/* Past shows — read-only, the cards link to the detail page */}
+      {past.length > 0 && (
+        <section className="space-y-5">
+          <h2 className="font-heading text-2xl font-bold uppercase tracking-tight">
+            Shows anteriores
+          </h2>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {past.map((show) => (
+              <ShowCard key={show.id} show={show} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
