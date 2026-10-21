@@ -49,8 +49,12 @@ export default async function HomePage() {
   ]);
 
   const list = (shows ?? []) as ShowWithBs[];
-  const featured = list.slice(0, FEATURED_COUNT);
-  const past = (pastShows ?? []) as ShowWithBs[];
+  // Past shows go after the ones on sale, in the same grid — the card
+  // itself marks them as finished.
+  const featured = [
+    ...list.slice(0, FEATURED_COUNT),
+    ...((pastShows ?? []) as ShowWithBs[]),
+  ];
 
   return (
     <div className="space-y-12">
@@ -108,7 +112,7 @@ export default async function HomePage() {
           </h2>
         </div>
 
-        {list.length === 0 ? (
+        {featured.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-12 text-center">
             <p className="font-heading text-lg uppercase text-muted-foreground">
               No hay shows disponibles
@@ -144,20 +148,6 @@ export default async function HomePage() {
           </>
         )}
       </section>
-
-      {/* Past shows — read-only, the cards link to the detail page */}
-      {past.length > 0 && (
-        <section className="space-y-5">
-          <h2 className="font-heading text-2xl font-bold uppercase tracking-tight">
-            Shows anteriores
-          </h2>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {past.map((show) => (
-              <ShowCard key={show.id} show={show} />
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }
