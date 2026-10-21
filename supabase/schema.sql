@@ -20,6 +20,7 @@ create table if not exists shows (
   comedians text[] not null default '{}',
   poster_url text,               -- medium card image (home/cartelera)
   banner_url text,               -- wide image on the show detail page
+  includes_beer boolean not null default false, -- "incluye una birra" on the card
   grid_rows int not null default 5,
   grid_cols int not null default 10,
   base_price numeric(10,2) not null,

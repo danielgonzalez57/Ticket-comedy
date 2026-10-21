@@ -70,10 +70,12 @@ export function ShowCard({ show }: { show: ShowWithBs }) {
             {show.comedians.join(" · ")}
           </p>
         )}
-        <p className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-highlight">
-          <Beer className="size-4 shrink-0" aria-hidden />
-          La entrada incluye una birra
-        </p>
+        {show.includes_beer && (
+          <p className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-highlight">
+            <Beer className="size-4 shrink-0" aria-hidden />
+            La entrada incluye una birra
+          </p>
+        )}
       </div>
 
       {/* Ticket-stub footer */}

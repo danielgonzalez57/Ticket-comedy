@@ -26,6 +26,7 @@ export type Show = {
   comedians: string[];
   poster_url: string | null;
   banner_url: string | null;
+  includes_beer: boolean;
   grid_rows: number;
   grid_cols: number;
   base_price: number;

@@ -3,6 +3,7 @@
 import { startTransition, useActionState, useRef, useState } from "react";
 import {
   Armchair,
+  Beer,
   CalendarClock,
   ImagePlus,
   Info,
@@ -186,6 +187,17 @@ export function ShowForm({ action, show, seatCount, submitLabel }: Props) {
               defaultValue={show?.comedians.join("\n")}
             />
           </div>
+
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm">
+            <input
+              type="checkbox"
+              name="includes_beer"
+              defaultChecked={show?.includes_beer ?? false}
+              className="size-4 accent-primary"
+            />
+            <Beer className="size-4 text-muted-foreground" aria-hidden />
+            La entrada incluye una birra
+          </label>
         </Section>
 
         <Section icon={Ticket} title="Precio">

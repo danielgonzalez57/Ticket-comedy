@@ -69,6 +69,7 @@ type ShowFields = {
   comedians: string[];
   base_price: number;
   tasa: number;
+  includes_beer: boolean;
 };
 
 function readShowFields(formData: FormData): ShowFields {
@@ -105,6 +106,8 @@ function readShowFields(formData: FormData): ShowFields {
     comedians: parseComedians(String(formData.get("comedians") ?? "")),
     base_price: basePrice,
     tasa,
+    // Unchecked checkboxes aren't sent at all.
+    includes_beer: formData.get("includes_beer") === "on",
   };
 }
 
